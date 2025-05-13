@@ -50,3 +50,10 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# CMake build files
+build/*
+!build/.gitkeep
+
+# Visual Studio Code
+.vscode/
