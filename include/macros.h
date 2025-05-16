@@ -1,9 +1,11 @@
 #pragma once
 #include <stdlib.h>
 
-/* HELPER */
-#define MAX(X,Y) X>Y ? X : Y
-#define MIN(X,Y) X<Y ? X : Y
+
+
+#define MAX(X,Y) (X>Y ? X : Y)
+
+#define MIN(X,Y) (X<Y ? X : Y)
 
 #define SWAP(X,Y) (                             \
     {                                           \
@@ -16,26 +18,10 @@
     }                                           \
 )
 
-
-/* GUI CONSTS*/
-#define MIN_HEIGHT_WINDOW 800
-#define MIN_WIDTH_WINDOW 640
-
-
-/* GAME CONSTS*/
-#define DEFAULT_MATRIX_DIM 4
-#define SIMULATION_RUNS 100
-#define ONE_BOX_PROXIMITY 0.5
-#define TWO_BOX_PROXIMITY 0.75
-#define HIDER 0
-#define SEEKER 1
-
-
-
-
-
-
-
+/* Creates a new Matrix */
+/* TYPE : data type */
+/* ROW : number of rows */
+/* COL : number of columns */
 #define MATRIX(TYPE, ROW , COL) (                       \
     {                                                   \
     TYPE** mat;                                         \
@@ -56,7 +42,9 @@
     }                                                   \
 )
 
-#define NEW_ARRAY(TYPE, SIZE) (                         \
+/* Creates a new Array */
+/* TYPE : data type */
+#define ARRAY(TYPE, SIZE) (                             \
     {                                                   \
         TYPE* arr = malloc(sizeof(TYPE) * SIZE);        \
         arr;                                            \
