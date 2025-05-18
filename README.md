@@ -1,6 +1,3 @@
-Sure! Here’s the complete README.md content all together for easy copying:
-
-````markdown
 # Hide-and-Seek Game Theory
 
 A Hide and Seek game based on **game theory principles**, developed in **C** using **SDL2**.
