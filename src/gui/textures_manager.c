@@ -1,37 +1,219 @@
 #include "gui/textures_manager.h"
 #include "gui/game_engine.h"
 
-SDL_Texture*
-load_texture(const char* t_file)
+void
+PNG_load(GameEngine* engine)
 {
-    SDL_Surface* temp_surface = IMG_Load(t_file);
-
-    if (!temp_surface)
-    {
-        fprintf(stderr, LOAD_IMAGE_FAILED_MSG , IMG_GetError());
-        return NULL;
+    SDL_Surface* map_PNG = IMG_Load("assets/map_SpritedSheet.png");
+    if (!map_PNG) {
+        printf(LOAD_MAP_FAILED_MSG, IMG_GetError());
+        return;
     }
 
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(game_engine_get_renderer(), temp_surface);
-    SDL_FreeSurface(temp_surface);
-
-    if (!texture)
-    {
-        fprintf(stderr, CREATE_TEXTURE_FAILED_MSG, SDL_GetError());
-        return NULL;
+    engine->map_texture = SDL_CreateTextureFromSurface(engine->renderer, map_PNG);
+    SDL_FreeSurface(map_PNG);
+    if (!engine->map_texture) {
+        fprintf(stderr, CREATE_MAP_TEXTURE_FAILED_MSG, SDL_GetError());
+        return;
     }
 
-    return texture;
+    SDL_Surface* hider_PNG = IMG_Load("assets/hider_SpritedSheet.png");
+    if (!hider_PNG) {
+        printf(LOAD_HIDER_FAILED_MSG, IMG_GetError());
+        return;
+    }
+    engine->hider_texture = SDL_CreateTextureFromSurface(engine->renderer, hider_PNG);
+    SDL_FreeSurface(hider_PNG);
+    if (!engine->hider_texture) {
+        fprintf(stderr, CREATE_HIDER_TEXTURE_FAILED_MSG, SDL_GetError());
+        return;
+    }
 
+    // SDL_Surface* seeker_PNG = IMG_Load("assets/seeker_SpritedSheet.png");
+    // if (!seeker_PNG) {
+    //     printf(LOAD_SEEKER_FAILED_MSG, IMG_GetError());
+    //     return;
+    // }
+    // engine->seeker_texture = SDL_CreateTextureFromSurface(engine->renderer, seeker_PNG);
+    // SDL_FreeSurface(seeker_PNG);
+    // if (!engine->seeker_texture) {
+    //     fprintf(stderr, CREATE_SEEKER_TEXTURE_FAILED_MSG, SDL_GetError());
+    //     return;
+    // }
+
+    SDL_Surface* easy_Chest_PNG = IMG_Load("assets/easy_Chest.png");
+    if (!easy_Chest_PNG) {
+        printf(LOAD_EASY_CHEST_FAILED_MSG, IMG_GetError());
+        return;
+    }
+    engine->easy_chest_texture = SDL_CreateTextureFromSurface(engine->renderer, easy_Chest_PNG);
+    SDL_FreeSurface(easy_Chest_PNG);
+    if (!engine->easy_chest_texture) {
+        fprintf(stderr, CREATE_EASY_CHEST_TEXTURE_FAILED_MSG, SDL_GetError());
+        return;
+    }
+
+    SDL_Surface* nutural_Chest_PNG = IMG_Load("assets/nutural_Chest.png");
+    if (!nutural_Chest_PNG) {
+        printf(LOAD_NEUTRAL_CHEST_FAILED_MSG, IMG_GetError());
+        return;
+    }
+    engine->nutural_chest_texture = SDL_CreateTextureFromSurface(engine->renderer, nutural_Chest_PNG);
+    SDL_FreeSurface(nutural_Chest_PNG);
+    if (!engine->nutural_chest_texture) {
+        fprintf(stderr, CREATE_NEUTRAL_CHEST_TEXTURE_FAILED_MSG, SDL_GetError());
+        return;
+    }
+
+    SDL_Surface* hard_Chest_PNG = IMG_Load("assets/hard_Chest.png");
+    if (!hard_Chest_PNG) {
+        printf(LOAD_HARD_CHEST_FAILED_MSG, IMG_GetError());
+        return;
+    }
+    engine->hard_chest_texture = SDL_CreateTextureFromSurface(engine->renderer, hard_Chest_PNG);
+    SDL_FreeSurface(hard_Chest_PNG);
+    if (!engine->hard_chest_texture) {
+        fprintf(stderr, CREATE_HARD_CHEST_TEXTURE_FAILED_MSG, SDL_GetError());
+        return;
+    }
+}
+
+/* Update animation frames based on elapsed time */
+void
+game_engine_update_animations(GameEngine* engine)
+{
+    Uint32 current_time = SDL_GetTicks();
+    Uint32 elapsed_time = current_time - engine->last_update_time;
+    
+    // Update frame time accumulator
+    engine->frame_time += elapsed_time;
+    
+    // Update animation frames if enough time has passed
+    if (engine->frame_time >= engine->frame_delay) {
+        // Reset frame time and save some remainder for smoother animation
+        engine->frame_time %= engine->frame_delay;
+        
+        // Update each animated sprite's current frame
+        engine->map_current_frame = (engine->map_current_frame + 1) % engine->map_frame_count;
+        engine->hider_current_frame = (engine->hider_current_frame + 1) % engine->hider_frame_count;
+        engine->seeker_current_frame = (engine->seeker_current_frame + 1) % engine->seeker_frame_count;
+        // engine->easy_chest_current_frame = (engine->easy_chest_current_frame + 1) % engine->easy_chest_frame_count;
+        // engine->nutural_chest_current_frame = (engine->nutural_chest_current_frame + 1) % engine->nutural_chest_frame_count;
+        // engine->hard_chest_current_frame = (engine->hard_chest_current_frame + 1) % engine->hard_chest_frame_count;
+    }
+    
+    // Save current time for next update
+    engine->last_update_time = current_time;
+}
+
+/* Render game objects with animations */
+void
+render_game_objects(GameEngine* engine)
+{
+    // Render map (assuming it's a background)
+    if (engine->map_texture) {
+        SDL_Rect srcRect = {
+            engine->map_current_frame * MAP_FRAME_WIDTH,
+            0,
+            MAP_FRAME_WIDTH,
+            MAP_FRAME_HEIGHT
+        };
+        SDL_Rect destRect = {0, 0, MAP_FRAME_WIDTH, MAP_FRAME_HEIGHT};
+        SDL_RenderCopy(engine->renderer, engine->map_texture, &srcRect, &destRect);
+    }
+    
+    // Render easy chest
+    if (engine->easy_chest_texture) {
+        SDL_Rect srcRect = {
+            engine->easy_chest_current_frame * CHEST_FRAME_WIDTH,
+            0,
+            CHEST_FRAME_WIDTH,
+            CHEST_FRAME_HEIGHT
+        };
+
+        SDL_Rect destRect = {100, 200, CHEST_FRAME_WIDTH/16, CHEST_FRAME_HEIGHT/16};
+
+        SDL_RenderCopy(engine->renderer, engine->easy_chest_texture, &srcRect, &destRect);
+    }
+    
+    // Render neutral chest
+    if (engine->nutural_chest_texture) {
+        SDL_Rect srcRect = {
+            engine->nutural_chest_current_frame * CHEST_FRAME_WIDTH,
+            0,
+            CHEST_FRAME_WIDTH,
+            CHEST_FRAME_HEIGHT
+        };
+
+        SDL_Rect destRect = {200, 200, CHEST_FRAME_WIDTH/16, CHEST_FRAME_HEIGHT/16};
+
+        SDL_RenderCopy(engine->renderer, engine->nutural_chest_texture, &srcRect, &destRect);
+    }
+    
+    // Render hard chest
+    if (engine->hard_chest_texture) {
+        SDL_Rect srcRect = {
+            engine->hard_chest_current_frame * CHEST_FRAME_WIDTH,
+            0,
+            CHEST_FRAME_WIDTH,
+            CHEST_FRAME_HEIGHT
+        };
+        
+        SDL_Rect destRect = {300, 200, CHEST_FRAME_WIDTH/16, CHEST_FRAME_HEIGHT/16};
+        
+        SDL_RenderCopy(engine->renderer, engine->hard_chest_texture, &srcRect, &destRect);
+    }
+    
+    // Render hider character
+    if (engine->hider_texture) {
+        SDL_Rect srcRect = {
+            engine->hider_current_frame * CHARACTER_FRAME_WIDTH,
+            0,
+            CHARACTER_FRAME_WIDTH,
+            CHARACTER_FRAME_HEIGHT
+        };
+        
+        SDL_Rect destRect = {400, 300, CHARACTER_FRAME_WIDTH/8, CHARACTER_FRAME_HEIGHT/8};
+        
+        SDL_RenderCopy(engine->renderer, engine->hider_texture, &srcRect, &destRect);
+    }
+    
+    // Render seeker character
+    if (engine->seeker_texture) {
+        SDL_Rect srcRect = {
+            engine->seeker_current_frame * CHARACTER_FRAME_WIDTH,
+            0,
+            CHARACTER_FRAME_WIDTH,
+            CHARACTER_FRAME_HEIGHT
+        };
+        
+        SDL_Rect destRect = {500, 300, CHARACTER_FRAME_WIDTH/8, CHARACTER_FRAME_HEIGHT/8};
+        
+        SDL_RenderCopy(engine->renderer, engine->seeker_texture, &srcRect, &destRect);
+    }
 }
 
 
 
 void
-destroy_texture(SDL_Texture* t_texture)
+destroy_texture(GameEngine* engine)
 {
-    if (t_texture != NULL)
-    {
-        SDL_DestroyTexture(t_texture);
+    if (engine->map_texture) {
+        SDL_DestroyTexture(engine->map_texture);
+    }
+    if (engine->hider_texture) {
+        SDL_DestroyTexture(engine->hider_texture);
+    }
+    if (engine->seeker_texture) {
+        SDL_DestroyTexture(engine->seeker_texture);
+    }
+    if (engine->easy_chest_texture) {
+        SDL_DestroyTexture(engine->easy_chest_texture);
+    }
+    if (engine->nutural_chest_texture) {
+        SDL_DestroyTexture(engine->nutural_chest_texture);
+    }
+    if (engine->hard_chest_texture) {
+        SDL_DestroyTexture(engine->hard_chest_texture);
     }
 }

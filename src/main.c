@@ -8,6 +8,8 @@ int main(int argc, char* argv[])
     while (game_engine_run_status())
     {
         game_engine_handle_events();
+        game_engine_render();
+        SDL_Delay(FRAME_RATE);
     }
 
     game_engine_destroy();
