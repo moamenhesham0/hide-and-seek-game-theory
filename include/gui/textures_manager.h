@@ -3,7 +3,6 @@
 #include <SDL2/SDL_image.h>
 #include "game_engine.h"
 
-#define TEXTURE_DIR "assets/"
 
 #define LOAD_MAP_FAILED_MSG "Failed to load map: %s\n"
 #define CREATE_MAP_TEXTURE_FAILED_MSG "Failed to create map texture: %s\n"

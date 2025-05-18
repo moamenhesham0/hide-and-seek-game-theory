@@ -53,14 +53,26 @@ function run_game {
     fi
 
     echo -e "${BLUE}Running hide and seek game...${NC}"
+
+    # Save current directory
+    CURRENT_DIR=$(pwd)
+
+    # Change to project root directory before running
+    cd "$BASE_DIR" || exit
+
+    # Run the executable
     if [ -f "$BASE_DIR/bin/hide_seek" ]; then
         "$BASE_DIR/bin/hide_seek"
     elif [ -f "$BASE_DIR/bin/hide_seek.exe" ]; then
         "$BASE_DIR/bin/hide_seek.exe"
     else
         echo -e "${RED}Executable not found after build${NC}"
+        cd "$CURRENT_DIR" || exit
         return 1
     fi
+
+    # Return to original directory
+    cd "$CURRENT_DIR" || exit
 }
 
 # Clean build files

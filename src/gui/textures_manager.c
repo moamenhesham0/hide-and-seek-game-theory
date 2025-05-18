@@ -1,10 +1,11 @@
 #include "gui/textures_manager.h"
 #include "gui/game_engine.h"
+#include "gui/textures.h"
 
 void
 PNG_load(GameEngine* engine)
 {
-    SDL_Surface* map_PNG = IMG_Load("assets/map_SpritedSheet.png");
+    SDL_Surface* map_PNG = IMG_Load(ASSETS_DIR MAP_SPRITE_SHEET);
     if (!map_PNG) {
         printf(LOAD_MAP_FAILED_MSG, IMG_GetError());
         return;
@@ -17,7 +18,7 @@ PNG_load(GameEngine* engine)
         return;
     }
 
-    SDL_Surface* hider_PNG = IMG_Load("assets/hider_SpritedSheet.png");
+    SDL_Surface* hider_PNG = IMG_Load(ASSETS_DIR HIDER_SPRITE_SHEET);
     if (!hider_PNG) {
         printf(LOAD_HIDER_FAILED_MSG, IMG_GetError());
         return;
@@ -41,7 +42,7 @@ PNG_load(GameEngine* engine)
     //     return;
     // }
 
-    SDL_Surface* easy_Chest_PNG = IMG_Load("assets/easy_Chest.png");
+    SDL_Surface* easy_Chest_PNG = IMG_Load(ASSETS_DIR EASY_CHEST_IMG);
     if (!easy_Chest_PNG) {
         printf(LOAD_EASY_CHEST_FAILED_MSG, IMG_GetError());
         return;
@@ -53,7 +54,7 @@ PNG_load(GameEngine* engine)
         return;
     }
 
-    SDL_Surface* nutural_Chest_PNG = IMG_Load("assets/nutural_Chest.png");
+    SDL_Surface* nutural_Chest_PNG = IMG_Load(ASSETS_DIR NEUTRAL_CHEST_IMG);
     if (!nutural_Chest_PNG) {
         printf(LOAD_NEUTRAL_CHEST_FAILED_MSG, IMG_GetError());
         return;
@@ -65,7 +66,7 @@ PNG_load(GameEngine* engine)
         return;
     }
 
-    SDL_Surface* hard_Chest_PNG = IMG_Load("assets/hard_Chest.png");
+    SDL_Surface* hard_Chest_PNG = IMG_Load(ASSETS_DIR HARD_CHEST_IMG);
     if (!hard_Chest_PNG) {
         printf(LOAD_HARD_CHEST_FAILED_MSG, IMG_GetError());
         return;
@@ -84,15 +85,15 @@ game_engine_update_animations(GameEngine* engine)
 {
     Uint32 current_time = SDL_GetTicks();
     Uint32 elapsed_time = current_time - engine->last_update_time;
-    
+
     // Update frame time accumulator
     engine->frame_time += elapsed_time;
-    
+
     // Update animation frames if enough time has passed
     if (engine->frame_time >= engine->frame_delay) {
         // Reset frame time and save some remainder for smoother animation
         engine->frame_time %= engine->frame_delay;
-        
+
         // Update each animated sprite's current frame
         engine->map_current_frame = (engine->map_current_frame + 1) % engine->map_frame_count;
         engine->hider_current_frame = (engine->hider_current_frame + 1) % engine->hider_frame_count;
@@ -101,7 +102,7 @@ game_engine_update_animations(GameEngine* engine)
         // engine->nutural_chest_current_frame = (engine->nutural_chest_current_frame + 1) % engine->nutural_chest_frame_count;
         // engine->hard_chest_current_frame = (engine->hard_chest_current_frame + 1) % engine->hard_chest_frame_count;
     }
-    
+
     // Save current time for next update
     engine->last_update_time = current_time;
 }
@@ -121,7 +122,7 @@ render_game_objects(GameEngine* engine)
         SDL_Rect destRect = {0, 0, MAP_FRAME_WIDTH, MAP_FRAME_HEIGHT};
         SDL_RenderCopy(engine->renderer, engine->map_texture, &srcRect, &destRect);
     }
-    
+
     // Render easy chest
     if (engine->easy_chest_texture) {
         SDL_Rect srcRect = {
@@ -135,7 +136,7 @@ render_game_objects(GameEngine* engine)
 
         SDL_RenderCopy(engine->renderer, engine->easy_chest_texture, &srcRect, &destRect);
     }
-    
+
     // Render neutral chest
     if (engine->nutural_chest_texture) {
         SDL_Rect srcRect = {
@@ -149,7 +150,7 @@ render_game_objects(GameEngine* engine)
 
         SDL_RenderCopy(engine->renderer, engine->nutural_chest_texture, &srcRect, &destRect);
     }
-    
+
     // Render hard chest
     if (engine->hard_chest_texture) {
         SDL_Rect srcRect = {
@@ -158,12 +159,12 @@ render_game_objects(GameEngine* engine)
             CHEST_FRAME_WIDTH,
             CHEST_FRAME_HEIGHT
         };
-        
+
         SDL_Rect destRect = {300, 200, CHEST_FRAME_WIDTH/16, CHEST_FRAME_HEIGHT/16};
-        
+
         SDL_RenderCopy(engine->renderer, engine->hard_chest_texture, &srcRect, &destRect);
     }
-    
+
     // Render hider character
     if (engine->hider_texture) {
         SDL_Rect srcRect = {
@@ -172,12 +173,12 @@ render_game_objects(GameEngine* engine)
             CHARACTER_FRAME_WIDTH,
             CHARACTER_FRAME_HEIGHT
         };
-        
+
         SDL_Rect destRect = {400, 300, CHARACTER_FRAME_WIDTH/8, CHARACTER_FRAME_HEIGHT/8};
-        
+
         SDL_RenderCopy(engine->renderer, engine->hider_texture, &srcRect, &destRect);
     }
-    
+
     // Render seeker character
     if (engine->seeker_texture) {
         SDL_Rect srcRect = {
@@ -186,9 +187,9 @@ render_game_objects(GameEngine* engine)
             CHARACTER_FRAME_WIDTH,
             CHARACTER_FRAME_HEIGHT
         };
-        
+
         SDL_Rect destRect = {500, 300, CHARACTER_FRAME_WIDTH/8, CHARACTER_FRAME_HEIGHT/8};
-        
+
         SDL_RenderCopy(engine->renderer, engine->seeker_texture, &srcRect, &destRect);
     }
 }

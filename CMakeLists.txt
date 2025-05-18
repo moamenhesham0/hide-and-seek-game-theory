@@ -9,6 +9,8 @@ set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
 set(LIB_DIR ${CMAKE_SOURCE_DIR}/lib)
 set(OUTPUT_DIR ${CMAKE_SOURCE_DIR}/bin)
 
+
+
 # ==========================================
 # PLATFORM-SPECIFIC SETTINGS
 # ==========================================

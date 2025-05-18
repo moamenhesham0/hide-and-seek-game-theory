@@ -6,14 +6,14 @@ A Hide and Seek game that applies game theory principles, developed in C using S
 
 ### 1. Compile build
 ```
-./hideseek build
+./hideseek.sh build
 ```
 ### 2. Compile & Run build
 ```
-./hideseek run
+./hideseek.sh run
 ```
 
 ### 3. Clean build
 ```
-./hideseek clean
+./hideseek.sh clean
 ```
