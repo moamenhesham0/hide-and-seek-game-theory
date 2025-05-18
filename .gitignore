@@ -53,3 +53,5 @@ build/*
 
 # Visual Studio Code
 .vscode/
+
+CMakeLists.txt

@@ -28,18 +28,15 @@ int place_type_index(PlaceType p) {
  * Choose a chest based on the probabilities array.
  * If all probabilities are zero, choose randomly.
  */
-int choose_chest(int num_chests, int *probabilities) {
-    int sum = 0;
-    for (int i = 0; i < num_chests; i++) sum += probabilities[i];
-    if (sum == 0) return rand() % num_chests;
+int choose_chest(int num_chests, double *probabilities) {
+    double r = (double)rand() / RAND_MAX;  // random number between 0 and 1
+    double cum = 0.0;
 
-    int r = rand() % sum;
-    int cum = 0;
     for (int i = 0; i < num_chests; i++) {
         cum += probabilities[i];
         if (r < cum) return i;
     }
-    return num_chests - 1;
+    return num_chests - 1;  // fallback if rounding errors occur
 }
 
 /*
@@ -49,80 +46,78 @@ int choose_chest(int num_chests, int *probabilities) {
 void simulate_games() {
     srand(time(NULL));
 
+    int num_chests = 4;
+
+    int fixed_payoff[4][4] = {
+        { 3, -1, -1, -1},
+        {-2,  1, -2, -2},
+        {-2, -2,  1, -2},
+        {-1, -1, -1,  3}
+    };
+
+    int **payoff_matrix = malloc(num_chests * sizeof(int *));
+    for (int i = 0; i < num_chests; i++) {
+        payoff_matrix[i] = malloc(num_chests * sizeof(int));
+        for (int j = 0; j < num_chests; j++) {
+            payoff_matrix[i][j] = fixed_payoff[i][j];
+        }
+    }
+
+    struct hider hider = initialize_hider(num_chests, payoff_matrix);
+    struct seeker seeker = initialize_seeker(num_chests, payoff_matrix);
+
+    struct hider best_hider = find_hider_strategy(&hider, num_chests);
+    struct seeker best_seeker = find_seeker_strategy(&seeker, num_chests);
+
+    printf("Computed Hider Strategy:\n");
+    for (int i = 0; i < num_chests; i++) {
+        printf("Chest %d: %.4f\n", i + 1, best_hider.probabilities[i]);
+    }
+
+    printf("Computed Seeker Strategy:\n");
+    for (int i = 0; i < num_chests; i++) {
+        printf("Chest %d: %.4f\n", i + 1, best_seeker.probabilities[i]);
+    }
+
     int seeker_score = 0;
     int hider_score = 0;
 
-    for (int sim = 0; sim < SIMULATIONS; sim++) {
-        int num_chests = MIN_CHESTS + rand() % (MAX_CHESTS - MIN_CHESTS + 1);
+    // Counters for how many times each chest is picked
+    int seeker_picks[4] = {0, 0, 0, 0};
+    int hider_picks[4] = {0, 0, 0, 0};
 
-        PlaceType *places = malloc(num_chests * sizeof(PlaceType));
-        for (int i = 0; i < num_chests; i++) {
-            places[i] = random_place_type();
-        }
-
-        int **payoff_matrix = malloc(num_chests * sizeof(int *));
-        for (int i = 0; i < num_chests; i++) {
-            payoff_matrix[i] = malloc(num_chests * sizeof(int));
-        }
-
-        for (int guess = 0; guess < num_chests; guess++) {
-            for (int hide = 0; hide < num_chests; hide++) {
-                PlaceType place = places[hide];
-                int idx = place_type_index(place);
-
-                if (guess == hide) {
-                    payoff_matrix[guess][hide] = seeker_rewards[idx];
-                } else {
-                    payoff_matrix[guess][hide] = penalties[idx];
-                }
-            }
-        }
-
-        printf("\n=== Round %d (Chests: %d) ===\nPlace Types (1=EASY, 2=NEUTRAL, 3=HARD):\n", sim + 1, num_chests);
-        for (int i = 0; i < num_chests; i++) printf("%d ", places[i]);
-        printf("\nPayoff Matrix (Seeker Rows, Hider Cols):\n");
-
-        for (int i = 0; i < num_chests; i++) {
-            for (int j = 0; j < num_chests; j++) {
-                printf("%3d ", payoff_matrix[i][j]);
-            }
-            printf("\n");
-        }
-
-        struct hider hider = initialize_hider(num_chests, payoff_matrix);
-        struct seeker seeker = initialize_seeker(num_chests, payoff_matrix);
-
-        struct hider best_hider = find_hider_strategy(&hider, num_chests);
-        struct seeker best_seeker = find_seeker_strategy(&seeker, num_chests);
-
-        printf("Hider Strategy:\n");
-        for (int i = 0; i < num_chests; i++) printf("Chest %d: %.4f\n", i + 1, best_hider.probabilities[i]);
-
-        printf("Seeker Strategy:\n");
-        for (int i = 0; i < num_chests; i++) printf("Chest %d: %.4f\n", i + 1, best_seeker.probabilities[i]);
-
+    for (int round = 0; round < 100; round++) {
         int chosen_hide = choose_chest(num_chests, best_hider.probabilities);
         int chosen_guess = choose_chest(num_chests, best_seeker.probabilities);
 
-        printf("Chosen Hide: Chest %d\n", chosen_hide + 1);
-        printf("Chosen Guess: Chest %d\n", chosen_guess + 1);
+        seeker_picks[chosen_guess]++;
+        hider_picks[chosen_hide]++;
 
         int reward = payoff_matrix[chosen_guess][chosen_hide];
-        printf("Reward (Seeker): %d\n", reward);
-
         seeker_score += reward;
-        hider_score += -reward;  // Opponent payoff is negative of seeker's payoff
+        hider_score += -reward;
 
-        printf("Current Score => Seeker: %d | Hider: %d\n", seeker_score, hider_score);
-
-        for (int i = 0; i < num_chests; i++) free(payoff_matrix[i]);
-        free(payoff_matrix);
-        free(places);
-        free(hider.probabilities);
-        free(seeker.probabilities);
+        printf("Round %3d: Hide Chest %d | Guess Chest %d | Reward (Seeker): %d\n",
+               round + 1, chosen_hide + 1, chosen_guess + 1, reward);
     }
 
-    printf("\n=== Final Score ===\n");
+    printf("\n=== Final Score after 100 rounds ===\n");
     printf("Seeker: %d\n", seeker_score);
     printf("Hider : %d\n", hider_score);
+
+    printf("\nChest Pick Counts:\n");
+    printf("Seeker picks:\n");
+    for (int i = 0; i < num_chests; i++) {
+        printf("Chest %d: %d times\n", i + 1, seeker_picks[i]);
+    }
+
+    printf("Hider picks:\n");
+    for (int i = 0; i < num_chests; i++) {
+        printf("Chest %d: %d times\n", i + 1, hider_picks[i]);
+    }
+
+    for (int i = 0; i < num_chests; i++) free(payoff_matrix[i]);
+    free(payoff_matrix);
+    free(hider.probabilities);
+    free(seeker.probabilities);
 }
