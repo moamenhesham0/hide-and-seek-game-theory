@@ -67,11 +67,17 @@ game_engine_init(const char* title, int width, int height)
 
     engine->frame_delay = FRAME_DELAY;
     engine->map_frame_count = MAP_FRAME_COUNT;
+    engine->map_current_frame = 0;
     engine->hider_frame_count = CHARACTER_FRAME_COUNT;
+    engine->hider_current_frame = 0;
     engine->seeker_frame_count = CHARACTER_FRAME_COUNT;
+    engine->seeker_current_frame = 0;
     engine->easy_chest_frame_count = CHEST_FRAME_COUNT;
+    engine->easy_chest_current_frame = 0;
     engine->nutural_chest_frame_count = CHEST_FRAME_COUNT;
+    engine->nutural_chest_current_frame = 0;
     engine->hard_chest_frame_count = CHEST_FRAME_COUNT;
+    engine->hard_chest_current_frame = 0;
     engine->last_update_time = SDL_GetTicks();
     
     engine->run_status = RUN_STATUS_RUNNING;

@@ -40,6 +40,9 @@ elseif(UNIX)
     set(SDL2_IMAGE_LIBS ${SDL2_IMAGE_LIBRARIES})
 endif()
 
+# Find SDL2_ttf package
+find_package(SDL2_ttf REQUIRED)
+
 # ==========================================
 # INCLUDES & SOURCE FILES
 # ==========================================
@@ -65,6 +68,7 @@ if(WIN32)
         ${LP_SOLVE}/lpsolve55.lib
         ${SDL2_LIBS}
         ${SDL2_IMAGE_LIBS}
+        SDL2_ttf
     )
 
     # Copy DLLs to output directory for Windows
@@ -81,8 +85,16 @@ elseif(UNIX)
         ${LP_SOLVE}/liblpsolve55.a
         ${SDL2_LIBS}
         ${SDL2_IMAGE_LIBS}
+        SDL2_ttf
     )
 endif()
+
+# Add SDL2_ttf include directories to your target
+target_include_directories(hide_seek PRIVATE 
+    ${SDL2_INCLUDE_DIRS}
+    ${SDL2_IMAGE_INCLUDE_DIRS}
+    ${SDL2_TTF_INCLUDE_DIRS}
+)
 
 # ==========================================
 # UTILITY TARGETS

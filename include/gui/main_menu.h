@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
+#include "macros.h"
+
 
 #define FIRST_GPU -1
 
@@ -17,13 +19,15 @@
 #define FAILED_WINDOW_MSG "Failed to create window: %s\n"
 #define FAILED_INIT_MSG "SDL could not initialize! SDL_Error: %s\n"
 
+#define FONT_PATH "./assets/Times_New_Roman_Bold.ttf"
+
 typedef struct {
     SDL_Rect rect;
     SDL_Texture *texture;
     bool is_hovered;
 } Button;
 
-typedef struct {
+typedef struct GameMenu {
     SDL_Window *window;
     SDL_Renderer *renderer;
     SDL_Texture *title;
@@ -33,33 +37,24 @@ typedef struct {
     Button *music;
     Button *start;
     bool is_running;
+    bool play_menu;
+    bool play_game;
+    char input_text[MAX_INPUT_LENGTH];
+    bool is_input_active;
+    TTF_Font *font;
+    SDL_Texture *input_texture;
+    SDL_Rect input_rect;
 } GameMenu;
 
-typedef struct {
-    SDL_Window *window;
-    SDL_Renderer *renderer;
-    bool is_one_dimension;
-    Button *title;
-    Button *start;
-    Button *exit;
-    Button *music;
-} PlayMenu;
-
-void menu_init(const char *title, int width, int height);
+GameMenu* menu_init(const char *title, int width, int height);
 
 void menu_window_init(const char* title, int width, int height);
-
-void load_texture();
-
-void load_button();
 
 void menu_handle_events();
 
 void menu_renderer_init();
 
 void menu_render();
-
-void render_menu_objects();
 
 bool menu_run_status();
 
