@@ -1,6 +1,6 @@
 #pragma once
 
-#define ASSETS_DIR "assets/"
+#define ASSETS_DIR "assets/game/"
 
 #define MAP_SPRITE_SHEET "map_sprite_sheet.png"
 #define HIDER_SPRITE_SHEET "hider_sprite_sheet.png"

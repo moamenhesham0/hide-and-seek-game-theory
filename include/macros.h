@@ -56,3 +56,10 @@
         ARR = realloc(ARR, sizeof(TYPE) * SIZE);        \
     }                                                   \
 )
+
+#define IS_MOUSE_INSIDE(x, y, rect) (                   \
+    {                                                   \
+    (x >= rect.x && x <= rect.x + rect.w) &&            \
+     (y >= rect.y && y <= rect.y + rect.h);             \
+    }                                                   \
+)
