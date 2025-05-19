@@ -51,5 +51,8 @@ dkms.conf
 build/*
 !build/.gitkeep
 
+# Ignore compiled binaries
+bin/
+
 # Visual Studio Code
 .vscode/
