@@ -56,3 +56,5 @@ bin/
 
 # Visual Studio Code
 .vscode/
+
+CMakeLists.txt
