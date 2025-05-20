@@ -1,4 +1,6 @@
-#include "gui/menu_event_manager.h"
+#include "gui/menu/menu_event_manager.h"
+#include "gui/game/events_manager.h"
+#include <stdlib.h>
 
 void
 menu_handler(GameMenu* menu, SDL_Event event){
@@ -7,7 +9,7 @@ menu_handler(GameMenu* menu, SDL_Event event){
     } else if (event.type == SDL_MOUSEMOTION) {
         int x = event.motion.x;
         int y = event.motion.y;
-        
+
         // Check if mouse is over buttons and update hover state
         menu->one_dimension->is_hovered = IS_MOUSE_INSIDE(x, y, menu->one_dimension->rect);
         menu->two_dimension->is_hovered = IS_MOUSE_INSIDE(x, y, menu->two_dimension->rect);
@@ -32,6 +34,7 @@ menu_handler(GameMenu* menu, SDL_Event event){
             menu->one_dimension->rect = (SDL_Rect){0, 0, 0, 0};
             menu->two_dimension->rect = (SDL_Rect){0, 0, 0, 0};
             menu->play_menu = true;
+            menu->is_2d = true;
         }
 
         // Add check for clicking the input box
@@ -47,6 +50,7 @@ menu_handler(GameMenu* menu, SDL_Event event){
         if(menu->play_menu && menu->input_text[0] != '\0' && IS_MOUSE_INSIDE(x, y, menu->start->rect)){
             // Handle start button click
             printf("Start button clicked. Input: %s\n", menu->input_text);
+            menu->dimension = atoi(menu->input_text);
             menu->play_game = true;
             menu->is_running = false;
         }

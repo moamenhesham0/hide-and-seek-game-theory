@@ -1,5 +1,6 @@
-#include "gui/game_engine.h"
-#include "gui/main_menu.h"
+#include "gui/game/game_engine.h"
+#include "gui/menu/main_menu.h"
+
 
 
 int main(int argc, char* argv[])
@@ -12,12 +13,12 @@ int main(int argc, char* argv[])
         SDL_Delay(16);
     }
     bool play_game = menu->play_game;
+    int dimension = menu->dimension;
+    bool is_2d = is_2d;
 
     menu_destroy();
-
     if(play_game){
-    game_engine_init("Game Engine", MIN_WIDTH, MIN_HEIGHT);
-
+    game_engine_init("Game Engine", MIN_WIDTH, MIN_HEIGHT, dimension, is_2d);
     while (game_engine_run_status())
     {
         game_engine_handle_events();

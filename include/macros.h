@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 
+#define UNUSED __attribute__((unused))
 
 #define MAX(X,Y) (X>Y ? X : Y)
 
@@ -34,7 +35,7 @@
 
 #define FREE_MATRIX(MAT, ROW) (                         \
     {                                                   \
-        for(int i = 0 ; i<ROW ; ++i)                    \
+        for(int i = 0 ; i<ROW&& MAT !=NULL ; ++i)       \
         {                                               \
             free(MAT[i]);                               \
         }                                               \

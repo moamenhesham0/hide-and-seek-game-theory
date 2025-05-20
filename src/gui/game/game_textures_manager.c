@@ -1,6 +1,8 @@
-#include "gui/textures_manager.h"
-#include "gui/game_engine.h"
-#include "gui/textures.h"
+#include "gui/game/textures_manager.h"
+#include "gui/game/game_engine.h"
+#include "gui/game/textures.h"
+#include "gui/game_flow/map_setup.h"
+#include "gui/game/events_manager.h"
 
 void
 PNG_load(GameEngine* engine)
@@ -123,47 +125,7 @@ render_game_objects(GameEngine* engine)
         SDL_RenderCopy(engine->renderer, engine->map_texture, &srcRect, &destRect);
     }
 
-    // Render easy chest
-    if (engine->easy_chest_texture) {
-        SDL_Rect srcRect = {
-            engine->easy_chest_current_frame * CHEST_FRAME_WIDTH,
-            0,
-            CHEST_FRAME_WIDTH,
-            CHEST_FRAME_HEIGHT
-        };
 
-        SDL_Rect destRect = {100, 200, CHEST_FRAME_WIDTH/16, CHEST_FRAME_HEIGHT/16};
-
-        SDL_RenderCopy(engine->renderer, engine->easy_chest_texture, &srcRect, &destRect);
-    }
-
-    // Render neutral chest
-    if (engine->nutural_chest_texture) {
-        SDL_Rect srcRect = {
-            engine->nutural_chest_current_frame * CHEST_FRAME_WIDTH,
-            0,
-            CHEST_FRAME_WIDTH,
-            CHEST_FRAME_HEIGHT
-        };
-
-        SDL_Rect destRect = {200, 200, CHEST_FRAME_WIDTH/16, CHEST_FRAME_HEIGHT/16};
-
-        SDL_RenderCopy(engine->renderer, engine->nutural_chest_texture, &srcRect, &destRect);
-    }
-
-    // Render hard chest
-    if (engine->hard_chest_texture) {
-        SDL_Rect srcRect = {
-            engine->hard_chest_current_frame * CHEST_FRAME_WIDTH,
-            0,
-            CHEST_FRAME_WIDTH,
-            CHEST_FRAME_HEIGHT
-        };
-
-        SDL_Rect destRect = {300, 200, CHEST_FRAME_WIDTH/16, CHEST_FRAME_HEIGHT/16};
-
-        SDL_RenderCopy(engine->renderer, engine->hard_chest_texture, &srcRect, &destRect);
-    }
 
     // Render hider character
     if (engine->hider_texture) {
@@ -174,9 +136,18 @@ render_game_objects(GameEngine* engine)
             CHARACTER_FRAME_HEIGHT
         };
 
-        SDL_Rect destRect = {400, 300, CHARACTER_FRAME_WIDTH/8, CHARACTER_FRAME_HEIGHT/8};
+        SDL_Rect destRect = {730, 180, CHARACTER_FRAME_WIDTH/8, CHARACTER_FRAME_HEIGHT/8};
 
         SDL_RenderCopy(engine->renderer, engine->hider_texture, &srcRect, &destRect);
+    }
+
+    if(engine->chests == NULL)
+        init_chests();
+
+    for(int i = 0 ; i < engine->dimension ; ++i)
+    {
+        Chest* chests = game_engine_get_chests();
+        SDL_RenderCopy(engine->renderer, chests[i].texture, NULL, &(chests[i].rect));
     }
 
     // // Render seeker character
@@ -193,6 +164,8 @@ render_game_objects(GameEngine* engine)
     //     SDL_RenderCopy(engine->renderer, engine->seeker_texture, &srcRect, &destRect);
     // }
 }
+
+
 
 
 

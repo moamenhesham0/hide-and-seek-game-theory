@@ -10,6 +10,11 @@ set(LIB_DIR ${CMAKE_SOURCE_DIR}/lib)
 set(OUTPUT_DIR ${CMAKE_SOURCE_DIR}/bin)
 
 
+# DEBUG CONFIGURATION
+set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g -O0 -Wall")
+
+
 
 # ==========================================
 # PLATFORM-SPECIFIC SETTINGS
@@ -55,10 +60,17 @@ file(GLOB_RECURSE SOURCES ${SOURCE_DIR}/*.c)
 # Main executable
 add_executable(hide_seek ${SOURCES})
 
-# Set output directory
+# Set output directory and disable PIE
 set_target_properties(hide_seek PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
+    POSITION_INDEPENDENT_CODE FALSE  # Disable PIE
 )
+
+# Disable PIE for gcc specifically
+if(UNIX)
+    set_property(TARGET hide_seek PROPERTY COMPILE_FLAGS "-fno-pie")
+    set_property(TARGET hide_seek PROPERTY LINK_FLAGS "-no-pie")
+endif()
 
 # ==========================================
 # LINKING
@@ -86,11 +98,12 @@ elseif(UNIX)
         ${SDL2_LIBS}
         ${SDL2_IMAGE_LIBS}
         SDL2_ttf
+        m  # Add the math library explicitly
     )
 endif()
 
 # Add SDL2_ttf include directories to your target
-target_include_directories(hide_seek PRIVATE 
+target_include_directories(hide_seek PRIVATE
     ${SDL2_INCLUDE_DIRS}
     ${SDL2_IMAGE_INCLUDE_DIRS}
     ${SDL2_TTF_INCLUDE_DIRS}

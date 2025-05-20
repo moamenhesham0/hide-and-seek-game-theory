@@ -16,14 +16,18 @@ A Hide and Seek game based on **game theory principles**, developed in **C** usi
 ```bash
 ./hideseek.sh run
 ```
-
-### 3. Clean build files
+### 3. Debug Mode
+```bash
+./hideseek.sh run_d
+```
+### 4. Clean build files
 
 ```bash
 ./hideseek.sh clean
 ```
 
 ---
+
 
 ## Important Notes
 

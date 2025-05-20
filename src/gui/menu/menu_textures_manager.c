@@ -1,4 +1,4 @@
-#include "gui/menu_textures_manager.h"
+#include "gui/menu/menu_textures_manager.h"
 
 void
 load_texture(GameMenu* menu){
@@ -40,7 +40,7 @@ load_button(GameMenu* menu){
     // One dimension button
     menu->one_dimension->is_hovered = false;
     menu->one_dimension->rect = (SDL_Rect){296, 275, 200, 36};
-    
+
     // Two dimension button
     menu->two_dimension->is_hovered = false;
     menu->two_dimension->rect = (SDL_Rect){296, 375, 200, 36};
@@ -65,21 +65,21 @@ render_menu_objects(GameMenu* menu){
         SDL_Rect title_rect = {200, 100, 400, 100};
         SDL_RenderCopy(menu->renderer, menu->title, NULL, &title_rect);
     }
-    
+
     // Render one dimension button
     if(menu->one_dimension && menu->one_dimension->texture){
-        SDL_SetRenderDrawColor(menu->renderer, 
-                              menu->one_dimension->is_hovered ? 150 : 128,  // Gray values 
+        SDL_SetRenderDrawColor(menu->renderer,
+                              menu->one_dimension->is_hovered ? 150 : 128,  // Gray values
                               menu->one_dimension->is_hovered ? 150 : 128,  // Gray values
                               menu->one_dimension->is_hovered ? 150 : 128,  // Gray values
                               255);
         SDL_RenderFillRect(menu->renderer, &menu->one_dimension->rect);
         SDL_RenderCopy(menu->renderer, menu->one_dimension->texture, NULL, &menu->one_dimension->rect);
     }
-    
+
     // Render two dimension button
     if(menu->two_dimension && menu->two_dimension->texture){
-        SDL_SetRenderDrawColor(menu->renderer, 
+        SDL_SetRenderDrawColor(menu->renderer,
                               menu->two_dimension->is_hovered ? 150 : 128,  // Gray values
                               menu->two_dimension->is_hovered ? 150 : 128,  // Gray values
                               menu->two_dimension->is_hovered ? 150 : 128,  // Gray values
@@ -87,10 +87,10 @@ render_menu_objects(GameMenu* menu){
         SDL_RenderFillRect(menu->renderer, &menu->two_dimension->rect);
         SDL_RenderCopy(menu->renderer, menu->two_dimension->texture, NULL, &menu->two_dimension->rect);
     }
-    
+
     // Render exit button
     if(menu->exit && menu->exit->texture){
-        SDL_SetRenderDrawColor(menu->renderer, 
+        SDL_SetRenderDrawColor(menu->renderer,
                               menu->exit->is_hovered ? 150 : 128,  // Gray values
                               menu->exit->is_hovered ? 150 : 128,  // Gray values
                               menu->exit->is_hovered ? 150 : 128,  // Gray values
@@ -98,10 +98,10 @@ render_menu_objects(GameMenu* menu){
         SDL_RenderFillRect(menu->renderer, &menu->exit->rect);
         SDL_RenderCopy(menu->renderer, menu->exit->texture, NULL, &menu->exit->rect);
     }
-    
+
     // Render music button
     if(menu->music && menu->music->texture){
-        SDL_SetRenderDrawColor(menu->renderer, 
+        SDL_SetRenderDrawColor(menu->renderer,
                               menu->music->is_hovered ? 150 : 128,  // Gray values
                               menu->music->is_hovered ? 150 : 128,  // Gray values
                               menu->music->is_hovered ? 150 : 128,  // Gray values
@@ -129,11 +129,11 @@ render_menu_objects(GameMenu* menu){
             SDL_SetRenderDrawColor(menu->renderer, 200, 200, 200, 255); // Light gray when inactive
         }
         SDL_RenderFillRect(menu->renderer, &menu->input_rect);
-        
+
         // Draw border
         SDL_SetRenderDrawColor(menu->renderer, 0, 0, 0, 255);
         SDL_RenderDrawRect(menu->renderer, &menu->input_rect);
-        
+
         // Render input text
         if (strlen(menu->input_text) > 0) {
             SDL_Color text_color = {0, 0, 0, 255};
@@ -147,7 +147,7 @@ render_menu_objects(GameMenu* menu){
                 SDL_FreeSurface(text_surface);
             }
         }
-        
+
         // Render placeholder text when input is empty
         if (strlen(menu->input_text) == 0) {
             SDL_Color text_color = {128, 128, 128, 255}; // Gray color for placeholder

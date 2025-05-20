@@ -1,4 +1,4 @@
-#include "gui/main_menu.h"
+#include "gui/menu/main_menu.h"
 
 static GameMenu* menu = NULL;
 
@@ -48,6 +48,10 @@ menu_init(const char *title, int width, int height)
 
     menu_renderer_init();
 
+
+
+
+
     if (menu->renderer == NULL) {
         fprintf(stderr, FAILED_RENDERER_MSG, SDL_GetError());
         SDL_DestroyWindow(menu->window);
@@ -61,6 +65,8 @@ menu_init(const char *title, int width, int height)
     menu->start = (Button*) malloc(sizeof(Button));
     menu->play_menu = false;
     menu->play_game = false;
+    menu->is_2d = false;
+    menu->dimension = 0;
 
     load_texture(menu);
 
@@ -78,7 +84,7 @@ menu_init(const char *title, int width, int height)
         fprintf(stderr, "Failed to load font: %s\n", TTF_GetError());
         exit(EXIT_FAILURE);
     }
-    
+
     // Initialize text input related fields
     memset(menu->input_text, 0, MAX_INPUT_LENGTH);
     menu->is_input_active = false;
@@ -122,22 +128,22 @@ menu_destroy(){
     if (menu->title) {
         SDL_DestroyTexture(menu->title);
     }
-    
+
     if (menu->one_dimension && menu->one_dimension->texture) {
         SDL_DestroyTexture(menu->one_dimension->texture);
         free(menu->one_dimension);
     }
-    
+
     if (menu->two_dimension && menu->two_dimension->texture) {
         SDL_DestroyTexture(menu->two_dimension->texture);
         free(menu->two_dimension);
     }
-    
+
     if (menu->exit && menu->exit->texture) {
         SDL_DestroyTexture(menu->exit->texture);
         free(menu->exit);
     }
-    
+
     if (menu->music && menu->music->texture) {
         SDL_DestroyTexture(menu->music->texture);
         free(menu->music);
@@ -146,7 +152,7 @@ menu_destroy(){
     if (menu->font) {
         TTF_CloseFont(menu->font);
     }
-    
+
     TTF_Quit();
 
     SDL_DestroyRenderer(menu->renderer);

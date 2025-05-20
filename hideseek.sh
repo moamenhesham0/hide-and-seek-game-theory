@@ -20,6 +20,7 @@ function print_help {
     echo -e "${YELLOW}Commands:${NC}"
     echo -e "  ${GREEN}build${NC}       Build the project"
     echo -e "  ${GREEN}run${NC}         Run the game"
+    echo -e "  ${GREEN}run_d${NC}   Run the game in debug mode with gdb"
     echo -e "  ${GREEN}clean${NC}       Clean build files"
     echo -e "  ${GREEN}rebuild${NC}     Clean and rebuild the project"
     echo -e "  ${GREEN}help${NC}        Display this help message"
@@ -27,6 +28,7 @@ function print_help {
     echo -e "${YELLOW}Examples:${NC}"
     echo -e "  hideseek build"
     echo -e "  hideseek run"
+    echo -e "  hideseek run_d"
     echo -e "  hideseek rebuild"
 }
 
@@ -95,6 +97,36 @@ function clean_project {
     echo -e "${GREEN}Clean complete${NC}"
 }
 
+
+function run_debug {
+    if [ ! -f "$BASE_DIR/bin/hide_seek" ] && [ ! -f "$BASE_DIR/bin/hide_seek.exe" ]; then
+        echo -e "${YELLOW}Executable not found. Building in debug mode first...${NC}"
+        build_project || return 1
+    fi
+
+    echo -e "${BLUE}Running hide and seek game in debug mode...${NC}"
+
+    # Save current directory
+    CURRENT_DIR=$(pwd)
+
+    # Change to project root directory before running
+    cd "$BASE_DIR" || exit
+
+    # Run the executable with gdb
+    if [ -f "$BASE_DIR/bin/hide_seek" ]; then
+        gdb "$BASE_DIR/bin/hide_seek"
+    elif [ -f "$BASE_DIR/bin/hide_seek.exe" ]; then
+        gdb "$BASE_DIR/bin/hide_seek.exe"
+    else
+        echo -e "${RED}Executable not found after build${NC}"
+        cd "$CURRENT_DIR" || exit
+        return 1
+    fi
+
+    # Return to original directory
+    cd "$CURRENT_DIR" || exit
+}
+
 # Main command logic
 case "$1" in
     build)
@@ -102,6 +134,9 @@ case "$1" in
         ;;
     run)
         run_game
+        ;;
+    run_d)
+        run_debug
         ;;
     clean)
         clean_project

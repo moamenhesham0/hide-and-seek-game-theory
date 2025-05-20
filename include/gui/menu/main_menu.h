@@ -9,7 +9,7 @@
 
 #define FIRST_GPU -1
 
-#define MAX_INPUT_LENGTH 10
+#define MAX_INPUT_LENGTH 5
 
 #define MENU_MIN_WIDTH 800
 #define MENU_MIN_HEIGHT 600
@@ -44,6 +44,13 @@ typedef struct GameMenu {
     TTF_Font *font;
     SDL_Texture *input_texture;
     SDL_Rect input_rect;
+
+
+    // Game info
+    int dimension;
+    bool is_2d;
+
+
 } GameMenu;
 
 GameMenu* menu_init(const char *title, int width, int height);

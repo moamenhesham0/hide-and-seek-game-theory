@@ -1,5 +1,6 @@
-#include "gui/events_manager.h"
-#include "gui/game_engine.h"
+#include "gui/game/events_manager.h"
+#include "gui/game/game_engine.h"
+#include "gui/game_flow/map_setup.h"
 
 static const EventEntry event_table[] =
 {
@@ -24,10 +25,11 @@ dispatch_event(SDL_Event* event)
 }
 
 void
-quit_event_handler()
+quit_event_handler(SDL_Event * event UNUSED)
 {
      game_engine_set_run_status(RUN_STATUS_QUIT);
 }
+
 
 
 void
