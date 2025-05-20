@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 #include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
@@ -20,6 +21,13 @@
 #define FAILED_INIT_MSG "SDL could not initialize! SDL_Error: %s\n"
 
 #define FONT_PATH "./assets/Times_New_Roman_Bold.ttf"
+
+#define MUTE_MUSIC Mix_VolumeMusic(0)
+#define UNMUTE_MUSIC Mix_VolumeMusic(MIX_MAX_VOLUME)
+#define IS_MUSIC_MUTE Mix_VolumeMusic(-1) == 0
+
+SDL_Thread *theme_music_thread; /*To start theme_music*/
+
 
 typedef struct {
     SDL_Rect rect;

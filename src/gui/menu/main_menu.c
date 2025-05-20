@@ -2,9 +2,47 @@
 
 static GameMenu* menu = NULL;
 
+
+int play_music_thread(void *data) {
+    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+        fprintf(stderr, "SDL_Init Error: %s\n", SDL_GetError());
+        return 1;
+    }
+
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        fprintf(stderr, "Mix_OpenAudio Error: %s\n", Mix_GetError());
+        SDL_Quit();
+        return 1;
+    }
+
+    Mix_Music *music = Mix_LoadMUS("assets/music/theme.mp3");
+    if (!music) {
+        fprintf(stderr, "Mix_LoadMUS Error: %s\n", Mix_GetError());
+        Mix_CloseAudio();
+        SDL_Quit();
+        return 1;
+    }
+
+    Mix_PlayMusic(music, -1);  // Loop infinitely
+
+    while (Mix_PlayingMusic()) {
+        SDL_Delay(100);
+    }
+
+    Mix_FreeMusic(music);
+    Mix_CloseAudio();
+    SDL_Quit();
+    return 0;
+}
+
 void
 menu_window_init(const char* title, int width, int height)
 {
+    theme_music_thread = SDL_CreateThread(play_music_thread, "MusicThread", NULL);
+    if (!theme_music_thread) {
+        fprintf(stderr, "SDL_CreateThread Error: %s\n", SDL_GetError());
+    }
+
     menu->window = SDL_CreateWindow(title,
                                     SDL_WINDOWPOS_CENTERED,
                                     SDL_WINDOWPOS_CENTERED,
@@ -19,7 +57,9 @@ menu_window_init(const char* title, int width, int height)
         free(menu);
         exit(EXIT_FAILURE);
     }
+
 }
+
 
 void
 menu_renderer_init()

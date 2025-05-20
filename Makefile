@@ -10,14 +10,21 @@ CFLAGS = -Wall -Wextra -O2 \
 	-I$(SOURCE_DIR)/game_logic/ai_characters \
 	-I$(LIB_DIR)/lp_solve_ux \
 	`sdl2-config --cflags` \
-	`pkg-config --cflags SDL2_image`
+	`pkg-config --cflags SDL2_image SDL2_mixer`
 
-LDFLAGS = -L$(LIB_DIR)/lp_solve_ux -llpsolve55 `sdl2-config --libs` `pkg-config --libs SDL2_image`
+
+LDFLAGS = -L$(LIB_DIR)/lp_solve_ux -llpsolve55 \
+	`sdl2-config --libs` \
+	`pkg-config --libs SDL2_image SDL2_ttf SDL2_mixer`
 
 SRC = $(wildcard $(SOURCE_DIR)/*.c) \
       $(wildcard $(SOURCE_DIR)/gui/*.c) \
+      $(wildcard $(SOURCE_DIR)/gui/menu/*.c) \
+      $(wildcard $(SOURCE_DIR)/gui/game/*.c) \
+      $(wildcard $(SOURCE_DIR)/gui/game_flow/*.c) \
       $(wildcard $(SOURCE_DIR)/game_logic/*.c) \
-      $(wildcard $(SOURCE_DIR)/game_logic/ai_characters/*.c)
+      $(wildcard $(SOURCE_DIR)/game_logic/ai_characters/*.c) \
+	  
 
 OBJ = $(SRC:.c=.o)
 TARGET = $(OUTPUT_DIR)/hide_seek

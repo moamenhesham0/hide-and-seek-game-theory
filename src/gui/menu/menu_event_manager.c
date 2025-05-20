@@ -63,6 +63,13 @@ menu_handler(GameMenu* menu, SDL_Event event){
 
         if(IS_MOUSE_INSIDE(x, y, menu->music->rect)){
             printf("Music button clicked.\n");
+            if (IS_MUSIC_MUTE) {
+                UNMUTE_MUSIC;
+                printf("Music unmuted.\n");
+            } else {
+                MUTE_MUSIC;
+                printf("Music muted.\n");
+            }
         }
 
         if (IS_MOUSE_INSIDE(x, y, menu->exit->rect)) {
