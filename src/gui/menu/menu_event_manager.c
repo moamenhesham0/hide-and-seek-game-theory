@@ -20,13 +20,13 @@ menu_handler(GameMenu* menu, SDL_Event event){
         int x = event.button.x;
         int y = event.button.y;
 
-        if(IS_MOUSE_INSIDE(x, y, menu->one_dimension->rect)){
-            // Handle one dimension button click
-            printf("One dimension button clicked.\n");
-        }
 
-        if(IS_MOUSE_INSIDE(x, y, menu->two_dimension->rect)){
-            // Handle two dimension button click
+        // Handle One and Two Dimension button clicks
+        if(IS_MOUSE_INSIDE(x, y, menu->two_dimension->rect) ||
+           IS_MOUSE_INSIDE(x, y, menu->one_dimension->rect)){
+
+            menu->is_2d = IS_MOUSE_INSIDE(x, y, menu->two_dimension->rect);
+
             SDL_DestroyTexture(menu->one_dimension->texture);
             SDL_DestroyTexture(menu->two_dimension->texture);
             menu->one_dimension->texture = NULL;
@@ -34,7 +34,6 @@ menu_handler(GameMenu* menu, SDL_Event event){
             menu->one_dimension->rect = (SDL_Rect){0, 0, 0, 0};
             menu->two_dimension->rect = (SDL_Rect){0, 0, 0, 0};
             menu->play_menu = true;
-            menu->is_2d = true;
         }
 
         // Add check for clicking the input box

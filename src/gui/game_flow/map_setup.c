@@ -34,7 +34,7 @@ SDL_Texture* get_chest_texure(Difficulty diff)
     }
 }
 
-void set_box_rect(SDL_Rect* rect)
+void set_box_rect(SDL_Rect* rect , int index)
 {
     static bool initialized = false;
     if (!initialized)
@@ -46,7 +46,7 @@ void set_box_rect(SDL_Rect* rect)
     int dim = game_engine_get_dimension();
     bool is_2d = game_engine_get_is_2d();
 
-    rect->x = rand() % (MAP_FRAME_WIDTH);
+    rect->x = is_2d ? (rand() % (MAP_FRAME_WIDTH)) : (index * MAP_FRAME_WIDTH / dim + 50);
     rect->y = rand() % (MAP_FRAME_HEIGHT);
     rect->w = CHEST_FRAME_WIDTH/16;
     rect->h = CHEST_FRAME_HEIGHT/16;
@@ -60,13 +60,14 @@ bool invalid_pos(Chest* chests , int index)
     if(rect.x < 50 || rect.x > MAP_FRAME_WIDTH - 50 ||
        rect.y < 30 || rect.y > MAP_FRAME_HEIGHT - 30)
         return true;
+
     for(int i = 0 ; i< BOUNDRIES_RECTS_SIZE ; ++i)
     {
         if(SDL_HasIntersection(&rect , &(BOUNDRIES[i])) == SDL_TRUE)
             return true;
     }
 
-    for(int i = 0 ; i < index ; ++i)
+    for(int i = 0 ; i < index && game_engine_get_is_2d() ; ++i)
     {
         if(SDL_HasIntersection(&rect , &(chests[i].rect)) == SDL_TRUE)
             return true;
@@ -89,7 +90,7 @@ void init_chests()
         chests[i].texture = get_chest_texure(chests[i].difficulty);
         do
         {
-            set_box_rect(&(chests[i].rect));
+            set_box_rect(&(chests[i].rect ), i);
         }
         while(invalid_pos(chests , i));
     }

@@ -16,7 +16,7 @@ SDL_Texture* get_chest_texure(Difficulty difficulty);
 
 bool invalid_pos(Chest* chests , int index);
 
-void set_box_rect(SDL_Rect* rect);
+void set_box_rect(SDL_Rect* rect, int index);
 
 void init_game_matrix();
 
