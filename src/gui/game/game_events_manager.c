@@ -25,7 +25,7 @@ dispatch_event(SDL_Event* event)
 }
 
 void
-quit_event_handler(SDL_Event * event UNUSED)
+quit_event_handler(SDL_Event * event )
 {
      game_engine_set_run_status(RUN_STATUS_QUIT);
 }

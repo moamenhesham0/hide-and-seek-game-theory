@@ -64,3 +64,11 @@
      (y >= rect.y && y <= rect.y + rect.h);             \
     }                                                   \
 )
+
+
+#define IS_OVERLAPPING(OBJ_RECT, BOUND_RECT) (          \
+    (OBJ_RECT.x < BOUND_RECT.x + BOUND_RECT.w) &&       \
+    (OBJ_RECT.x + OBJ_RECT.w > BOUND_RECT.x) &&         \
+    (OBJ_RECT.y < BOUND_RECT.y + BOUND_RECT.h) &&       \
+    (OBJ_RECT.y + OBJ_RECT.h > BOUND_RECT.y)            \
+)

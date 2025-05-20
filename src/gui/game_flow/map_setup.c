@@ -2,6 +2,7 @@
 #include "gui/game/textures_manager.h"
 #include "gui/game/game_engine.h"
 #include "macros.h"
+#include "gui/game_flow/boundries.h"
 #include <stdlib.h>
 #include <time.h>
 
@@ -35,6 +36,13 @@ SDL_Texture* get_chest_texure(Difficulty diff)
 
 void set_box_rect(SDL_Rect* rect)
 {
+    static bool initialized = false;
+    if (!initialized)
+    {
+        srand(time(NULL));
+        initialized = true;
+    }
+
     int dim = game_engine_get_dimension();
     bool is_2d = game_engine_get_is_2d();
 
@@ -45,6 +53,28 @@ void set_box_rect(SDL_Rect* rect)
 
 
 }
+
+bool invalid_pos(Chest* chests , int index)
+{
+    SDL_Rect rect = chests[index].rect;
+    if(rect.x < 50 || rect.x > MAP_FRAME_WIDTH - 50 ||
+       rect.y < 30 || rect.y > MAP_FRAME_HEIGHT - 30)
+        return true;
+    for(int i = 0 ; i< BOUNDRIES_RECTS_SIZE ; ++i)
+    {
+        if(SDL_HasIntersection(&rect , &(BOUNDRIES[i])) == SDL_TRUE)
+            return true;
+    }
+
+    for(int i = 0 ; i < index ; ++i)
+    {
+        if(SDL_HasIntersection(&rect , &(chests[i].rect)) == SDL_TRUE)
+            return true;
+    }
+
+    return false;
+}
+
 
 void init_chests()
 {
@@ -57,7 +87,11 @@ void init_chests()
         chests[i].difficulty = generate_difficulty();
         chests[i].is_hovered = false;
         chests[i].texture = get_chest_texure(chests[i].difficulty);
-        set_box_rect(&(chests[i].rect));
+        do
+        {
+            set_box_rect(&(chests[i].rect));
+        }
+        while(invalid_pos(chests , i));
     }
 
     game_engine_set_chests(chests);
