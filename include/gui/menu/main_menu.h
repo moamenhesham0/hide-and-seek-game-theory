@@ -26,6 +26,11 @@
 #define UNMUTE_MUSIC Mix_VolumeMusic(MIX_MAX_VOLUME)
 #define IS_MUSIC_MUTE Mix_VolumeMusic(-1) == 0
 
+#define IS_HIDER (is_hider)
+#define IS_SEEKER (!is_hider)
+#define BECOME_HIDER (is_hider = true)
+#define BECOME_SEEKER (is_hider = false)
+
 SDL_Thread *theme_music_thread; /*To start theme_music*/
 
 
@@ -42,8 +47,10 @@ typedef struct GameMenu {
     Button *one_dimension;
     Button *two_dimension;
     Button *exit;
+    Button *hider_seeker;
     Button *music;
     Button *start;
+    bool is_hider;
     bool is_running;
     bool play_menu;
     bool play_game;

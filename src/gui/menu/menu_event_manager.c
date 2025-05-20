@@ -27,6 +27,7 @@ menu_handler(GameMenu* menu, SDL_Event event){
         menu->exit->is_hovered = IS_MOUSE_INSIDE(x, y, menu->exit->rect);
         menu->music->is_hovered = IS_MOUSE_INSIDE(x, y, menu->music->rect);
         menu->start->is_hovered = IS_MOUSE_INSIDE(x, y, menu->start->rect);
+        menu->hider_seeker->is_hovered = IS_MOUSE_INSIDE(x, y, menu->hider_seeker->rect);
     } else if (event.type == SDL_MOUSEBUTTONDOWN) {
         int x = event.button.x;
         int y = event.button.y;
@@ -71,6 +72,31 @@ menu_handler(GameMenu* menu, SDL_Event event){
                 printf("Music muted.\n");
             }
         }
+
+        // On mouse click event handler:
+        if (IS_MOUSE_INSIDE(x, y, menu->hider_seeker->rect)) {
+            printf("Hider Seeker button clicked.\n");
+
+            // Toggle state
+            if (menu->is_hider) {       
+                menu->is_hider = false;         
+                // Clean old texture first
+                if (menu->hider_seeker->texture != NULL) {
+                    SDL_DestroyTexture(menu->hider_seeker->texture);
+                }
+                menu->hider_seeker->texture = IMG_LoadTexture(menu->renderer, "assets/menu/seeker.png");
+                printf("Seeker selected.\n");
+            } else {
+                menu->is_hider = true;
+                // Clean old texture first
+                if (menu->hider_seeker->texture != NULL) {
+                    SDL_DestroyTexture(menu->hider_seeker->texture);
+                }
+                menu->hider_seeker->texture = IMG_LoadTexture(menu->renderer, "assets/menu/hider.png");
+                printf("Hider selected.\n");
+            }
+        }
+
 
         if (IS_MOUSE_INSIDE(x, y, menu->exit->rect)) {
             menu->is_running = false;

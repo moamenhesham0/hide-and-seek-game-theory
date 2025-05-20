@@ -103,6 +103,8 @@ menu_init(const char *title, int width, int height)
     menu->exit = (Button*) malloc(sizeof(Button));
     menu->music = (Button*) malloc(sizeof(Button));
     menu->start = (Button*) malloc(sizeof(Button));
+    menu->hider_seeker = (Button*) malloc(sizeof(Button));
+    menu->is_hider = true;
     menu->play_menu = false;
     menu->play_game = false;
     menu->is_2d = false;
@@ -182,6 +184,11 @@ menu_destroy(){
     if (menu->exit && menu->exit->texture) {
         SDL_DestroyTexture(menu->exit->texture);
         free(menu->exit);
+    }
+
+    if (menu->hider_seeker && menu->hider_seeker->texture) {
+        SDL_DestroyTexture(menu->hider_seeker->texture);
+        free(menu->hider_seeker);
     }
 
     if (menu->music && menu->music->texture) {

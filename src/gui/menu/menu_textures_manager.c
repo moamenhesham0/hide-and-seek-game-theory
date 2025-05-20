@@ -27,6 +27,13 @@ load_texture(GameMenu* menu){
         fprintf(stderr, "Failed to load music texture: %s\n", IMG_GetError());
         return;
     }
+
+    menu->hider_seeker->texture = IMG_LoadTexture(menu->renderer, "assets/menu/hider.png");
+    if (menu->hider_seeker->texture == NULL) {
+        fprintf(stderr, "Failed to load hider_seeker texture: %s\n", IMG_GetError());
+        return;
+    }
+
     menu->start->texture = IMG_LoadTexture(menu->renderer, "assets/menu/start.png");
     if (menu->start->texture == NULL) {
         fprintf(stderr, "Failed to load start texture: %s\n", IMG_GetError());
@@ -52,6 +59,9 @@ load_button(GameMenu* menu){
     // Music button - moved to bottom right
     menu->music->is_hovered = false;
     menu->music->rect = (SDL_Rect){750, 550, 35, 35};
+
+    menu->hider_seeker->is_hovered = false;
+    menu->hider_seeker->rect = (SDL_Rect){375, 525, 80, 80};
 
     // Start button - moved to center
     menu->start->is_hovered = false;
@@ -108,6 +118,17 @@ render_menu_objects(GameMenu* menu){
                               255);
         SDL_RenderFillRect(menu->renderer, &menu->music->rect);
         SDL_RenderCopy(menu->renderer, menu->music->texture, NULL, &menu->music->rect);
+    }
+
+    // Render hider seeker button
+    if(menu->hider_seeker && menu->hider_seeker->texture){
+        SDL_SetRenderDrawColor(menu->renderer,
+                              menu->hider_seeker->is_hovered ? 150 : 128,  // Gray values
+                              menu->hider_seeker->is_hovered ? 150 : 128,  // Gray values
+                              menu->hider_seeker->is_hovered ? 150 : 128,  // Gray values
+                              255);
+        SDL_RenderFillRect(menu->renderer, &menu->hider_seeker->rect);
+        SDL_RenderCopy(menu->renderer, menu->hider_seeker->texture, NULL, &menu->hider_seeker->rect);
     }
 
     if(menu->play_menu && menu->start && menu->start->texture){
