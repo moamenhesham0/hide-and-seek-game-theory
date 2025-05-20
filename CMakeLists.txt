@@ -48,6 +48,16 @@ endif()
 # Find SDL2_ttf package
 find_package(SDL2_ttf REQUIRED)
 
+# Find SDL2_mixer package
+if(WIN32)
+    # Windows configuration
+    # Add SDL2_mixer paths if needed
+else()
+    # Linux configuration
+    find_package(SDL2_mixer REQUIRED)
+    include_directories(${SDL2_MIXER_INCLUDE_DIRS})
+endif()
+
 # ==========================================
 # INCLUDES & SOURCE FILES
 # ==========================================
@@ -81,6 +91,7 @@ if(WIN32)
         ${SDL2_LIBS}
         ${SDL2_IMAGE_LIBS}
         SDL2_ttf
+        SDL2_mixer  # Add SDL2_mixer here
     )
 
     # Copy DLLs to output directory for Windows
@@ -98,6 +109,7 @@ elseif(UNIX)
         ${SDL2_LIBS}
         ${SDL2_IMAGE_LIBS}
         SDL2_ttf
+        SDL2_mixer  # Add SDL2_mixer here
         m  # Add the math library explicitly
     )
 endif()

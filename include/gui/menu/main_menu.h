@@ -31,7 +31,7 @@
 #define BECOME_HIDER (is_hider = true)
 #define BECOME_SEEKER (is_hider = false)
 
-SDL_Thread *theme_music_thread; /*To start theme_music*/
+
 
 
 typedef struct {

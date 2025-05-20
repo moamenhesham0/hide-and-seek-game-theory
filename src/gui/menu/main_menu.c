@@ -23,6 +23,8 @@ int play_music_thread(void *data) {
         return 1;
     }
 
+    Mix_VolumeMusic(MIX_MAX_VOLUME / 8);
+
     Mix_PlayMusic(music, -1);  // Loop infinitely
 
     while (Mix_PlayingMusic()) {
@@ -38,6 +40,7 @@ int play_music_thread(void *data) {
 void
 menu_window_init(const char* title, int width, int height)
 {
+    SDL_Thread *theme_music_thread = NULL; /*To start theme_music*/
     theme_music_thread = SDL_CreateThread(play_music_thread, "MusicThread", NULL);
     if (!theme_music_thread) {
         fprintf(stderr, "SDL_CreateThread Error: %s\n", SDL_GetError());

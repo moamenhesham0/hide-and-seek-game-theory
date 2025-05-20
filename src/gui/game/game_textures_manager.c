@@ -32,17 +32,17 @@ PNG_load(GameEngine* engine)
         return;
     }
 
-    // SDL_Surface* seeker_PNG = IMG_Load("assets/seeker_SpritedSheet.png");
-    // if (!seeker_PNG) {
-    //     printf(LOAD_SEEKER_FAILED_MSG, IMG_GetError());
-    //     return;
-    // }
-    // engine->seeker_texture = SDL_CreateTextureFromSurface(engine->renderer, seeker_PNG);
-    // SDL_FreeSurface(seeker_PNG);
-    // if (!engine->seeker_texture) {
-    //     fprintf(stderr, CREATE_SEEKER_TEXTURE_FAILED_MSG, SDL_GetError());
-    //     return;
-    // }
+    SDL_Surface* seeker_PNG = IMG_Load("assets/game/seeker_sprite_sheet.png");
+    if (!seeker_PNG) {
+        printf(LOAD_SEEKER_FAILED_MSG, IMG_GetError());
+        return;
+    }
+    engine->seeker_texture = SDL_CreateTextureFromSurface(engine->renderer, seeker_PNG);
+    SDL_FreeSurface(seeker_PNG);
+    if (!engine->seeker_texture) {
+        fprintf(stderr, CREATE_SEEKER_TEXTURE_FAILED_MSG, SDL_GetError());
+        return;
+    }
 
     SDL_Surface* easy_Chest_PNG = IMG_Load(ASSETS_DIR EASY_CHEST_IMG);
     if (!easy_Chest_PNG) {
@@ -125,7 +125,14 @@ render_game_objects(GameEngine* engine)
         SDL_RenderCopy(engine->renderer, engine->map_texture, &srcRect, &destRect);
     }
 
+    if(engine->chests == NULL)
+        init_chests();
 
+    for(int i = 0 ; i < engine->dimension ; ++i)
+    {
+        Chest* chests = game_engine_get_chests();
+        SDL_RenderCopy(engine->renderer, chests[i].texture, NULL, &(chests[i].rect));
+    }
 
     // Render hider character
     if (engine->hider_texture) {
@@ -141,28 +148,19 @@ render_game_objects(GameEngine* engine)
         SDL_RenderCopy(engine->renderer, engine->hider_texture, &srcRect, &destRect);
     }
 
-    if(engine->chests == NULL)
-        init_chests();
+    // Render seeker character
+    if (engine->seeker_texture) {
+        SDL_Rect srcRect = {
+            engine->seeker_current_frame * CHARACTER_FRAME_WIDTH,
+            0,
+            CHARACTER_FRAME_WIDTH,
+            CHARACTER_FRAME_HEIGHT
+        };
 
-    for(int i = 0 ; i < engine->dimension ; ++i)
-    {
-        Chest* chests = game_engine_get_chests();
-        SDL_RenderCopy(engine->renderer, chests[i].texture, NULL, &(chests[i].rect));
+        SDL_Rect destRect = {500, 300, CHARACTER_FRAME_WIDTH/8, CHARACTER_FRAME_HEIGHT/8};
+
+        SDL_RenderCopy(engine->renderer, engine->seeker_texture, &srcRect, &destRect);
     }
-
-    // // Render seeker character
-    // if (engine->seeker_texture) {
-    //     SDL_Rect srcRect = {
-    //         engine->seeker_current_frame * CHARACTER_FRAME_WIDTH,
-    //         0,
-    //         CHARACTER_FRAME_WIDTH,
-    //         CHARACTER_FRAME_HEIGHT
-    //     };
-
-    //     SDL_Rect destRect = {500, 300, CHARACTER_FRAME_WIDTH/8, CHARACTER_FRAME_HEIGHT/8};
-
-    //     SDL_RenderCopy(engine->renderer, engine->seeker_texture, &srcRect, &destRect);
-    // }
 }
 
 
