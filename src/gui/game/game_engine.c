@@ -4,6 +4,7 @@
 #include "gui/game/game_engine.h"
 #include "gui/game/events_manager.h"
 #include "gui/game/textures_manager.h"
+#include "gui/game_flow/map_setup.h"
 #include "macros.h"
 
 
@@ -51,7 +52,7 @@ renderer_init()
 
 /* Initializes the game engine */
 void
-game_engine_init(const char* title, int width, int height, int dimension, bool is_2d)
+game_engine_init(const char* title, int width, int height, int dimension, bool is_2d , bool is_hider)
 {
     if (engine != NULL) {
         fprintf(stderr, GAME_ENGINE_ALREADY_RUNNING_MSG);
@@ -68,8 +69,30 @@ game_engine_init(const char* title, int width, int height, int dimension, bool i
 
     engine->dimension = dimension;
     engine->is_2d = is_2d;
+    engine->is_hider = is_hider;
     engine->game_matrix = NULL;
     engine->chests = NULL;
+
+    init_game_matrix();
+
+
+     for(int i = 0 ; i<dimension ; ++i)
+    {
+        printf("[");
+        for(int j = 0 ; j<dimension ; ++j)
+        {
+            printf("%d, " , engine->game_matrix[i][j]);
+        }
+        printf("]\n");
+    }
+
+
+    engine->seeker =  initialize_seeker(dimension , engine->game_matrix);
+    engine->hider = initialize_hider(dimension , engine->game_matrix);
+
+    find_hider_strategy(engine->hider , dimension);
+    find_seeker_strategy(engine->seeker , dimension);
+
 
     engine->frame_delay = FRAME_DELAY;
     engine->map_frame_count = MAP_FRAME_COUNT;
@@ -172,6 +195,14 @@ game_engine_get_is_2d()
 {
     return engine->is_2d;
 }
+
+/* Returns the is_hider status of the game engine */
+bool
+game_engine_get_is_hider()
+{
+    return engine->is_hider;
+}
+
 /* Returns the game matrix of the game engine */
 int**
 game_engine_get_game_matrix()
@@ -184,6 +215,18 @@ Chest*
 game_engine_get_chests()
 {
     return &(engine->chests[0]);
+}
+
+struct hider*
+game_engine_get_hider()
+{
+    return engine->hider;
+}
+
+struct seeker*
+game_engine_get_seeker()
+{
+    return engine->seeker;
 }
 
 void
@@ -210,7 +253,11 @@ game_engine_set_is_2d(bool is_2d)
     engine->is_2d = is_2d;
 }
 
-
+void
+game_engine_set_is_hider(bool is_hider)
+{
+    engine->is_hider = is_hider;
+}
 
 
 void

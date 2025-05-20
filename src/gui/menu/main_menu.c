@@ -1,7 +1,7 @@
 #include "gui/menu/main_menu.h"
 
 static GameMenu* menu = NULL;
-
+SDL_Thread *theme_music_thread = NULL; /*To start theme_music*/
 
 int play_music_thread(void *data) {
     if (SDL_Init(SDL_INIT_AUDIO) < 0) {

@@ -7,7 +7,7 @@ struct seeker
     double **constraints;  // Constraints for each cell
 };
 
-struct seeker initialize_seeker(int num_chests, int **payoff_matrix);
-struct seeker find_seeker_strategy(struct seeker *seeker, int num_chests);
+struct seeker* initialize_seeker(int num_chests, int **payoff_matrix);
+void find_seeker_strategy(struct seeker *seeker, int num_chests);
 
 #endif // HIDER_H

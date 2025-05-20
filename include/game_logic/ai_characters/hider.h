@@ -8,7 +8,7 @@ struct hider
 };
 
 
-struct hider initialize_hider(int num_chests, int **payoff_matrix);
-struct hider find_hider_strategy(struct hider *hider, int num_chests);
+struct hider* initialize_hider(int num_chests, int **payoff_matrix);
+void find_hider_strategy(struct hider *hider, int num_chests);
 
 #endif // HIDER_H

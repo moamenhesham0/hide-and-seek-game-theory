@@ -23,6 +23,7 @@ if(WIN32)
     set(LP_SOLVE ${LIB_DIR}/lp_solve_win)
     set(SDL2_DIR "C:/SDL2")
     set(SDL2_IMAGE_DIR "C:/SDL2_image")
+    set(SDL2_MIXER_DIR "C:/SDL2_mixer")
 elseif(UNIX)
     set(LP_SOLVE ${LIB_DIR}/lp_solve_ux)
 endif()
@@ -32,17 +33,20 @@ endif()
 # ==========================================
 if(WIN32)
     # Windows - Use provided paths
-    include_directories(${SDL2_DIR}/include ${SDL2_IMAGE_DIR}/include)
-    link_directories(${SDL2_DIR}/lib/x64 ${SDL2_IMAGE_DIR}/lib/x64)
+    include_directories(${SDL2_DIR}/include ${SDL2_IMAGE_DIR}/include ${SDL2_MIXER_DIR}/include)
+    link_directories(${SDL2_DIR}/lib/x64 ${SDL2_IMAGE_DIR}/lib/x64 ${SDL2_MIXER_DIR}/lib/x64)
     set(SDL2_LIBS SDL2 SDL2main)
     set(SDL2_IMAGE_LIBS SDL2_image)
+    set(SDL2_MIXER_LIBS SDL2_mixer)
 elseif(UNIX)
     find_package(SDL2 REQUIRED)
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(SDL2_IMAGE REQUIRED SDL2_image)
-    include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIRS})
+    pkg_check_modules(SDL2_MIXER REQUIRED SDL2_mixer)
+    include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIRS} ${SDL2_MIXER_INCLUDE_DIRS})
     set(SDL2_LIBS ${SDL2_LIBRARIES})
     set(SDL2_IMAGE_LIBS ${SDL2_IMAGE_LIBRARIES})
+    set(SDL2_MIXER_LIBS ${SDL2_MIXER_LIBRARIES})
 endif()
 
 # Find SDL2_ttf package
@@ -90,6 +94,7 @@ if(WIN32)
         ${LP_SOLVE}/lpsolve55.lib
         ${SDL2_LIBS}
         ${SDL2_IMAGE_LIBS}
+        ${SDL2_MIXER_LIBS}
         SDL2_ttf
         SDL2_mixer  # Add SDL2_mixer here
     )
@@ -100,6 +105,7 @@ if(WIN32)
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             ${SDL2_DIR}/lib/x64/SDL2.dll
             ${SDL2_IMAGE_DIR}/lib/x64/SDL2_image.dll
+            ${SDL2_MIXER_DIR}/lib/x64/SDL2_mixer.dll
             ${OUTPUT_DIR}
         COMMENT "Copying SDL2 DLLs to bin directory"
     )
@@ -108,6 +114,7 @@ elseif(UNIX)
         ${LP_SOLVE}/liblpsolve55.a
         ${SDL2_LIBS}
         ${SDL2_IMAGE_LIBS}
+        ${SDL2_MIXER_LIBS}
         SDL2_ttf
         SDL2_mixer  # Add SDL2_mixer here
         m  # Add the math library explicitly
@@ -119,6 +126,7 @@ target_include_directories(hide_seek PRIVATE
     ${SDL2_INCLUDE_DIRS}
     ${SDL2_IMAGE_INCLUDE_DIRS}
     ${SDL2_TTF_INCLUDE_DIRS}
+    ${SDL2_MIXER_INCLUDE_DIRS}
 )
 
 # ==========================================
@@ -142,11 +150,5 @@ message(STATUS "Output directory: ${OUTPUT_DIR}")
 if(WIN32)
     message(STATUS "SDL2 directory: ${SDL2_DIR}")
     message(STATUS "SDL2_image directory: ${SDL2_IMAGE_DIR}")
+    message(STATUS "SDL2_mixer directory: ${SDL2_MIXER_DIR}")
 endif()
-
-
-
-
-
-
-

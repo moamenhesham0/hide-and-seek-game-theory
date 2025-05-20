@@ -46,6 +46,11 @@ game_engine_update_animations(GameEngine* engine);
 void
 render_game_objects(GameEngine* engine);
 
+
+void
+render_hover(Chest* chest);
+
+
 void
 destroy_texture(GameEngine* engine);
 

@@ -16,21 +16,21 @@ Difficulty generate_difficulty()
         initialized = true;
     }
 
-    return rand() % DIFFICULTY_COUNT;
+    return (rand() % DIFFICULTY_COUNT);
 }
 
 SDL_Texture* get_chest_texure(Difficulty diff)
 {
     switch (diff)
     {
-    case EASY:
-        return game_engine_get_easy_chest_texture();
-
-    case HARD:
+    case _HARD:
         return game_engine_get_hard_chest_texture();
 
-    default:
+    case _NEUTRAL:
         return game_engine_get_nutural_chest_texture();
+
+    default:
+        return game_engine_get_easy_chest_texture();
     }
 }
 
@@ -82,6 +82,9 @@ bool invalid_pos(Chest* chests , int index)
 
 void init_chests()
 {
+    if(game_engine_get_chests() != NULL)
+        return;
+
     int dim = game_engine_get_dimension();
     Chest* chests = ARRAY(Chest , dim);
     for(int i = 0 ; i < dim ; ++i)
@@ -101,11 +104,11 @@ void init_chests()
 
 void init_game_matrix()
 {
+    if(game_engine_get_chests() == NULL)
+        init_chests();
+
     int dim = game_engine_get_dimension();
     Chest* chests = game_engine_get_chests();
-
-    if(chests == NULL)
-        init_chests();
 
     int** game_matrix = MATRIX(int , dim , dim);
 
@@ -117,13 +120,15 @@ void init_game_matrix()
         {
 
             if(j == i)
-                game_matrix[HIDER_LOSS[difficulty]];
+                game_matrix[i][j] = SEEKER_GAIN[difficulty];
 
             else
-                game_matrix[HIDER_GAIN[difficulty]];
+                game_matrix[i][j] = HIDER_GAIN[difficulty];
 
         }
     }
+
+   
 
     game_engine_set_game_matrix(game_matrix);
 }

@@ -26,12 +26,6 @@
 #define UNMUTE_MUSIC Mix_VolumeMusic(MIX_MAX_VOLUME)
 #define IS_MUSIC_MUTE Mix_VolumeMusic(-1) == 0
 
-#define IS_HIDER (is_hider)
-#define IS_SEEKER (!is_hider)
-#define BECOME_HIDER (is_hider = true)
-#define BECOME_SEEKER (is_hider = false)
-
-
 
 
 typedef struct {

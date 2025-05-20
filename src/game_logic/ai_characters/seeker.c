@@ -8,25 +8,36 @@
  * This file contains the logic for the seeker character in the game.
  * The seeker uses linear programming to determine the optimal strategy.
  */
-struct seeker initialize_seeker(int num_chests, int **payoff_matrix) {
-    struct seeker s;
-    s.probabilities = (double *)malloc(num_chests * sizeof(double));
-    s.constraints = (double **)malloc(num_chests * sizeof(double *));
+struct seeker* initialize_seeker(int num_chests, int **payoff_matrix) {
+    struct seeker* s = malloc(sizeof(struct seeker));
+    s->probabilities = (double *)malloc(num_chests * sizeof(double));
+    s->constraints = (double **)malloc(num_chests * sizeof(double *));
     for (int i = 0; i < num_chests; ++i) {
-        s.constraints[i] = (double *)malloc((num_chests + 1 + 1) * sizeof(double)); 
+        s->constraints[i] = (double *)malloc((num_chests + 1 + 1) * sizeof(double));
         // num_chests variables + 1 for 'v' + 1 for 1-based indexing
-        s.probabilities[i] = 0.0;
+        s->probabilities[i] = 0.0;
     }
 
     // Prepare constraints matrix for LP:
     // Each constraint corresponds to one hider choice (column)
     // Row: p_i coefficients + coefficient for v = -1 (to do sum p_i * payoff[i][j] - v >= 0)
     for (int hide = 0; hide < num_chests; ++hide) {
-        s.constraints[hide][0] = 0.0; // unused 0 index (lp_solve 1-based indexing)
+        s->constraints[hide][0] = 0.0; // unused 0 index (lp_solve 1-based indexing)
         for (int guess = 0; guess < num_chests; ++guess) {
-            s.constraints[hide][guess + 1] = payoff_matrix[guess][hide] * -1;
+            s->constraints[hide][guess + 1] = payoff_matrix[guess][hide] * -1;
         }
-        s.constraints[hide][num_chests + 1] = -1.0; // coefficient of -v
+        s->constraints[hide][num_chests + 1] = -1.0; // coefficient of -v
+    }
+
+    printf("\nSeeker payoff matrix:\n");
+    for(int i = 0 ; i<num_chests ; ++i)
+    {
+        printf("[");
+        for(int j = 0 ; j<num_chests ; ++j)
+        {
+            printf("%d, " , payoff_matrix[i][j]);
+        }
+        printf("]\n");
     }
 
     return s;
@@ -36,7 +47,7 @@ struct seeker initialize_seeker(int num_chests, int **payoff_matrix) {
  * Find the optimal strategy for the seeker using linear programming.
  * This function sets up the LP model, solves it, and updates the seeker's probabilities.
  */
-struct seeker find_seeker_strategy(struct seeker *seeker, int num_chests) {
+void find_seeker_strategy(struct seeker *seeker, int num_chests) {
     lprec *lp = make_lp(0, num_chests + 1); // variables: p1..pn + v
     if (lp == NULL) {
         printf("Failed to create LP model.\n");
@@ -89,5 +100,4 @@ struct seeker find_seeker_strategy(struct seeker *seeker, int num_chests) {
     }
     printf("V: %.4f\n", vars[num_chests]);
     delete_lp(lp);
-    return *seeker;
 }

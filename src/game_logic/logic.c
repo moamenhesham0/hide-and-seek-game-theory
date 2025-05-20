@@ -32,10 +32,18 @@ int choose_chest(int num_chests, double *probabilities) {
     double r = (double)rand() / RAND_MAX;  // random number between 0 and 1
     double cum = 0.0;
 
+    printf("(");
+    for(int i = 0 ; i< num_chests ; ++i)
+    {
+        printf("%.4lf, " , probabilities[i]);
+    }
+    printf(")\n");
     for (int i = 0; i < num_chests; i++) {
         cum += probabilities[i];
+
         if (r < cum) return i;
     }
+
     return num_chests - 1;  // fallback if rounding errors occur
 }
 
@@ -63,20 +71,20 @@ void simulate_games() {
         }
     }
 
-    struct hider hider = initialize_hider(num_chests, payoff_matrix);
-    struct seeker seeker = initialize_seeker(num_chests, payoff_matrix);
+    struct hider* best_hider = initialize_hider(num_chests, payoff_matrix);
+    struct seeker* best_seeker = initialize_seeker(num_chests, payoff_matrix);
 
-    struct hider best_hider = find_hider_strategy(&hider, num_chests);
-    struct seeker best_seeker = find_seeker_strategy(&seeker, num_chests);
+    find_hider_strategy(best_hider, num_chests);
+    find_seeker_strategy(best_seeker, num_chests);
 
     printf("Computed Hider Strategy:\n");
     for (int i = 0; i < num_chests; i++) {
-        printf("Chest %d: %.4f\n", i + 1, best_hider.probabilities[i]);
+        printf("Chest %d: %.4f\n", i + 1, best_hider->probabilities[i]);
     }
 
     printf("Computed Seeker Strategy:\n");
     for (int i = 0; i < num_chests; i++) {
-        printf("Chest %d: %.4f\n", i + 1, best_seeker.probabilities[i]);
+        printf("Chest %d: %.4f\n", i + 1, best_seeker->probabilities[i]);
     }
 
     int seeker_score = 0;
@@ -87,8 +95,8 @@ void simulate_games() {
     int hider_picks[4] = {0, 0, 0, 0};
 
     for (int round = 0; round < 100; round++) {
-        int chosen_hide = choose_chest(num_chests, best_hider.probabilities);
-        int chosen_guess = choose_chest(num_chests, best_seeker.probabilities);
+        int chosen_hide = choose_chest(num_chests, best_hider->probabilities);
+        int chosen_guess = choose_chest(num_chests, best_seeker->probabilities);
 
         seeker_picks[chosen_guess]++;
         hider_picks[chosen_hide]++;
@@ -118,6 +126,4 @@ void simulate_games() {
 
     for (int i = 0; i < num_chests; i++) free(payoff_matrix[i]);
     free(payoff_matrix);
-    free(hider.probabilities);
-    free(seeker.probabilities);
 }

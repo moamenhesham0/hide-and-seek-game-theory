@@ -3,31 +3,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct hider initialize_hider(int num_chests, int **payoff_matrix) {
-    struct hider s;
-    s.probabilities = (double *)malloc(num_chests * sizeof(double));
-    s.constraints = (double **)malloc(num_chests * sizeof(double *));
+struct hider* initialize_hider(int num_chests, int **payoff_matrix) {
+    struct hider* s = malloc(sizeof(struct hider));
+    s->probabilities = (double *)malloc(num_chests * sizeof(double));
+    s->constraints = (double **)malloc(num_chests * sizeof(double *));
     for (int i = 0; i < num_chests; ++i) {
-        s.constraints[i] = (double *)malloc((num_chests + 1 + 1) * sizeof(double)); 
+        s->constraints[i] = (double *)malloc((num_chests + 1 + 1) * sizeof(double));
         // num_chests variables + 1 for 'v' + 1 for 1-based indexing
-        s.probabilities[i] = 0.0;
+        s->probabilities[i] = 0.0;
     }
 
     // Prepare constraints matrix for LP:
     // Each constraint corresponds to one hider choice (column)
     // Row: p_i coefficients + coefficient for v = -1 (to do sum p_i * payoff[i][j] - v >= 0)
     for (int hide = 0; hide < num_chests; ++hide) {
-        s.constraints[hide][0] = 0.0; // unused 0 index (lp_solve 1-based indexing)
+        s->constraints[hide][0] = 0.0; // unused 0 index (lp_solve 1-based indexing)
         for (int guess = 0; guess < num_chests; ++guess) {
-            s.constraints[hide][guess + 1] = payoff_matrix[hide][guess] * -1;
+            s->constraints[hide][guess + 1] = payoff_matrix[hide][guess] * -1;
         }
-        s.constraints[hide][num_chests + 1] = -1.0; // coefficient of -v
+        s->constraints[hide][num_chests + 1] = -1.0; // coefficient of -v
     }
 
     return s;
 }
 
-struct hider find_hider_strategy(struct hider *hider, int num_chests) {
+void find_hider_strategy(struct hider *hider, int num_chests) {
     lprec *lp = make_lp(0, num_chests + 1); // variables: p1..pn + v
     if (lp == NULL) {
         printf("Failed to create LP model.\n");
@@ -75,5 +75,4 @@ struct hider find_hider_strategy(struct hider *hider, int num_chests) {
     }
     printf("W: %.4f\n", vars[num_chests]);
     delete_lp(lp);
-    return *hider;
 }

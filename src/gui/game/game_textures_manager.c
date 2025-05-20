@@ -148,7 +148,18 @@ render_game_objects(GameEngine* engine)
         SDL_RenderCopy(engine->renderer, engine->hider_texture, &srcRect, &destRect);
     }
 
-    // Render seeker character
+    if(engine->chests == NULL)
+        init_chests();
+
+    for(int i = 0 ; i < engine->dimension ; ++i)
+    {
+        Chest* chests = game_engine_get_chests();
+        SDL_RenderCopy(engine->renderer, chests[i].texture, NULL, &(chests[i].rect));
+        render_hover(&chests[i]);
+
+    }
+
+    // // Render seeker character
     if (engine->seeker_texture) {
         SDL_Rect srcRect = {
             engine->seeker_current_frame * CHARACTER_FRAME_WIDTH,
@@ -164,6 +175,67 @@ render_game_objects(GameEngine* engine)
 }
 
 
+void render_hover(Chest* chest)
+{
+    if (!chest || !chest->is_hovered) return;
+
+    SDL_Renderer* renderer = game_engine_get_renderer();
+    if (!renderer) return;
+
+    // Save current renderer settings
+    Uint8 r, g, b, a;
+    SDL_GetRenderDrawColor(renderer, &r, &g, &b, &a);
+    SDL_BlendMode originalBlendMode;
+    SDL_GetRenderDrawBlendMode(renderer, &originalBlendMode);
+
+    // Set blend mode to additive for a highlight glow effect
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_ADD);
+
+    // Choose highlight color based on difficulty
+    switch (chest->difficulty) {
+        case _EASY:
+            SDL_SetRenderDrawColor(renderer, 100, 200, 100, 100); // Green for easy
+            break;
+        case _NEUTRAL:
+            SDL_SetRenderDrawColor(renderer, 200, 200, 0, 100);   // Yellow for neutral
+            break;
+        case _HARD:
+            SDL_SetRenderDrawColor(renderer, 200, 80, 80, 100);   // Red for hard
+            break;
+        default:
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 100); // White as fallback
+    }
+
+    // Fill the chest's rectangle with the semi-transparent color
+    SDL_RenderFillRect(renderer, &chest->rect);
+
+    // Create a pulsing effect by adjusting opacity
+    Uint32 currentTime = SDL_GetTicks();
+    int pulseValue = (int)(50.0 * sin(currentTime * 0.005) + 50.0);
+
+    // Draw a brighter inner highlight
+    SDL_Rect innerRect = chest->rect;
+
+    switch (chest->difficulty) {
+        case EASY:
+            SDL_SetRenderDrawColor(renderer, 150, 255, 150, pulseValue);
+            break;
+        case NEUTRAL:
+            SDL_SetRenderDrawColor(renderer, 255, 255, 100, pulseValue);
+            break;
+        case HARD:
+            SDL_SetRenderDrawColor(renderer, 255, 100, 100, pulseValue);
+            break;
+        default:
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, pulseValue);
+    }
+
+    SDL_RenderFillRect(renderer, &innerRect);
+
+    // Restore original renderer settings
+    SDL_SetRenderDrawColor(renderer, r, g, b, a);
+    SDL_SetRenderDrawBlendMode(renderer, originalBlendMode);
+}
 
 
 

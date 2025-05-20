@@ -2,6 +2,9 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <stdbool.h>
+#include "game_logic/ai_characters/hider.h"
+#include "game_logic/ai_characters/seeker.h"
+#include "game_logic/logic.h"
 
 #define MIN_WIDTH 1024
 #define MIN_HEIGHT 1024
@@ -26,9 +29,9 @@
 
 typedef enum
 {
-    EASY,
-    NEUTRAL,
-    HARD,
+    _EASY,
+    _NEUTRAL,
+    _HARD,
     DIFFICULTY_COUNT,
 }
 Difficulty;
@@ -58,8 +61,13 @@ typedef struct GameEngine
     // Game info
     int dimension;
     bool is_2d;
+    bool is_hider;
     int** game_matrix;
     Chest* chests;
+
+    //Players
+    struct hider* hider;
+    struct seeker* seeker;
 
 
     // Animation parameters
@@ -85,6 +93,7 @@ typedef struct GameEngine
     int hard_chest_current_frame;
     int hard_chest_frame_count;
 
+
     // Last time we updated animation
     Uint32 last_update_time;
 }GameEngine;
@@ -94,13 +103,15 @@ void window_init(const char* title, int width, int height);
 
 void renderer_init();
 
-void game_engine_init(const char* title, int width, int height , int dimension , bool is_2d);
+void game_engine_init(const char* title, int width, int height , int dimension , bool is_2d , bool is_hider);
 
 bool game_engine_run_status();
 
 int game_engine_get_dimension();
 
 bool game_engine_get_is_2d();
+
+bool game_engine_get_is_hider();
 
 int** game_engine_get_game_matrix();
 
@@ -110,6 +121,7 @@ void game_engine_set_chests(Chest* chests);
 void game_engine_set_game_matrix(int** matrix);
 void game_engine_set_dimension(int dimension);
 void game_engine_set_is_2d(bool is_2d);
+void game_engine_set_is_hider(bool is_hider);
 
 SDL_Window* game_engine_get_window();
 

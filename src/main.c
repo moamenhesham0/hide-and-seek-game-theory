@@ -15,10 +15,11 @@ int main(int argc, char* argv[])
     bool play_game = menu->play_game;
     int dimension = menu->dimension;
     bool is_2d = menu->is_2d;
+    bool is_hider = menu->is_hider;
 
     menu_destroy();
     if(play_game){
-    game_engine_init("Game Engine", MIN_WIDTH, MIN_HEIGHT, dimension, is_2d);
+    game_engine_init("Game Engine", MIN_WIDTH, MIN_HEIGHT, dimension, is_2d , is_hider);
     while (game_engine_run_status())
     {
         game_engine_handle_events();
