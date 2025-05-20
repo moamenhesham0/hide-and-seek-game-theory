@@ -67,7 +67,10 @@ bool invalid_pos(Chest* chests , int index)
             return true;
     }
 
-    for(int i = 0 ; i < index && game_engine_get_is_2d() ; ++i)
+    if(!game_engine_get_is_2d())
+        return false;
+
+    for(int i = 0 ; i < index  ; ++i)
     {
         if(SDL_HasIntersection(&rect , &(chests[i].rect)) == SDL_TRUE)
             return true;
@@ -80,9 +83,7 @@ bool invalid_pos(Chest* chests , int index)
 void init_chests()
 {
     int dim = game_engine_get_dimension();
-    bool is_2d = game_engine_get_is_2d();
     Chest* chests = ARRAY(Chest , dim);
-
     for(int i = 0 ; i < dim ; ++i)
     {
         chests[i].difficulty = generate_difficulty();

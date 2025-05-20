@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
     }
     bool play_game = menu->play_game;
     int dimension = menu->dimension;
-    bool is_2d = is_2d;
+    bool is_2d = menu->is_2d;
 
     menu_destroy();
     if(play_game){

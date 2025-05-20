@@ -2,6 +2,17 @@
 #include "gui/game/events_manager.h"
 #include <stdlib.h>
 
+void play_menu_handler(GameMenu* menu)
+{
+    SDL_DestroyTexture(menu->one_dimension->texture);
+    SDL_DestroyTexture(menu->two_dimension->texture);
+    menu->one_dimension->texture = NULL;
+    menu->two_dimension->texture = NULL;
+    menu->one_dimension->rect = (SDL_Rect){0, 0, 0, 0};
+    menu->two_dimension->rect = (SDL_Rect){0, 0, 0, 0};
+    menu->play_menu = true;
+}
+
 void
 menu_handler(GameMenu* menu, SDL_Event event){
     if (event.type == SDL_QUIT) {
@@ -21,19 +32,15 @@ menu_handler(GameMenu* menu, SDL_Event event){
         int y = event.button.y;
 
 
-        // Handle One and Two Dimension button clicks
-        if(IS_MOUSE_INSIDE(x, y, menu->two_dimension->rect) ||
-           IS_MOUSE_INSIDE(x, y, menu->one_dimension->rect)){
+        // Handle One dimension button
+        if(IS_MOUSE_INSIDE(x, y, menu->one_dimension->rect)){
+            play_menu_handler(menu);
+        }
 
-            menu->is_2d = IS_MOUSE_INSIDE(x, y, menu->two_dimension->rect);
-
-            SDL_DestroyTexture(menu->one_dimension->texture);
-            SDL_DestroyTexture(menu->two_dimension->texture);
-            menu->one_dimension->texture = NULL;
-            menu->two_dimension->texture = NULL;
-            menu->one_dimension->rect = (SDL_Rect){0, 0, 0, 0};
-            menu->two_dimension->rect = (SDL_Rect){0, 0, 0, 0};
-            menu->play_menu = true;
+        // Handle Two dimension button
+        if(IS_MOUSE_INSIDE(x, y, menu->two_dimension->rect)){
+            menu->is_2d = true;
+            play_menu_handler(menu);
         }
 
         // Add check for clicking the input box
