@@ -59,3 +59,6 @@ bin/*
 .vscode/
 
 CMakeLists.txt
+
+# commit
+commit.txt

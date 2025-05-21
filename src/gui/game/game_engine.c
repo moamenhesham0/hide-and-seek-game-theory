@@ -75,23 +75,13 @@ game_engine_init(const char* title, int width, int height, int dimension, bool i
 
     init_game_matrix();
 
-
-     for(int i = 0 ; i<dimension ; ++i)
-    {
-        printf("[");
-        for(int j = 0 ; j<dimension ; ++j)
-        {
-            printf("%d, " , engine->game_matrix[i][j]);
-        }
-        printf("]\n");
-    }
-
-
     engine->seeker =  initialize_seeker(dimension , engine->game_matrix);
     engine->hider = initialize_hider(dimension , engine->game_matrix);
 
     find_hider_strategy(engine->hider , dimension);
     find_seeker_strategy(engine->seeker , dimension);
+
+    check_valid_probablities();
 
 
     engine->frame_delay = FRAME_DELAY;
@@ -227,6 +217,18 @@ struct seeker*
 game_engine_get_seeker()
 {
     return engine->seeker;
+}
+
+void
+game_engine_set_hider(struct hider* hider)
+{
+    engine->hider = hider;
+}
+
+void
+game_engine_set_seeker(struct seeker* seeker)
+{
+    engine->seeker = seeker;
 }
 
 void

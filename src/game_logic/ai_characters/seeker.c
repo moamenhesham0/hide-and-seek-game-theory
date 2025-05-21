@@ -29,16 +29,6 @@ struct seeker* initialize_seeker(int num_chests, int **payoff_matrix) {
         s->constraints[hide][num_chests + 1] = -1.0; // coefficient of -v
     }
 
-    printf("\nSeeker payoff matrix:\n");
-    for(int i = 0 ; i<num_chests ; ++i)
-    {
-        printf("[");
-        for(int j = 0 ; j<num_chests ; ++j)
-        {
-            printf("%d, " , payoff_matrix[i][j]);
-        }
-        printf("]\n");
-    }
 
     return s;
 }

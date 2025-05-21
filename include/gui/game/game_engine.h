@@ -123,6 +123,13 @@ void game_engine_set_dimension(int dimension);
 void game_engine_set_is_2d(bool is_2d);
 void game_engine_set_is_hider(bool is_hider);
 
+
+struct hider* game_engine_get_hider();
+struct seeker* game_engine_get_seeker();
+
+void game_engine_set_hider(struct hider* hider);
+void game_engine_set_seeker(struct seeker* seeker);
+
 SDL_Window* game_engine_get_window();
 
 SDL_Renderer* game_engine_get_renderer();

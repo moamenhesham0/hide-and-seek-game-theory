@@ -23,7 +23,7 @@ int play_music_thread(void *data) {
         return 1;
     }
 
-    Mix_VolumeMusic(MIX_MAX_VOLUME / 8);
+    Mix_VolumeMusic(MIX_MAX_VOLUME / 50);
 
     Mix_PlayMusic(music, -1);  // Loop infinitely
 

@@ -32,12 +32,6 @@ int choose_chest(int num_chests, double *probabilities) {
     double r = (double)rand() / RAND_MAX;  // random number between 0 and 1
     double cum = 0.0;
 
-    printf("(");
-    for(int i = 0 ; i< num_chests ; ++i)
-    {
-        printf("%.4lf, " , probabilities[i]);
-    }
-    printf(")\n");
     for (int i = 0; i < num_chests; i++) {
         cum += probabilities[i];
 

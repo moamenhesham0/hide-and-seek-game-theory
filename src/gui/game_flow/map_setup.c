@@ -2,9 +2,14 @@
 #include "gui/game/textures_manager.h"
 #include "gui/game/game_engine.h"
 #include "macros.h"
+#include "game_logic/ai_characters/hider.h"
+#include "game_logic/ai_characters/seeker.h"
 #include "gui/game_flow/boundries.h"
 #include <stdlib.h>
 #include <time.h>
+
+
+
 
 
 Difficulty generate_difficulty()
@@ -78,6 +83,66 @@ bool invalid_pos(Chest* chests , int index)
 
     return false;
 }
+void check_valid_probablities()
+{
+    int dim = game_engine_get_dimension();
+    double max = 0;
+    do
+    {
+        double* prob = game_engine_get_is_hider() ?
+        game_engine_get_seeker()->probabilities : game_engine_get_hider()->probabilities;
+
+        max = 0;
+        for(int i = 0 ; i < dim ; ++i)
+        {
+            max = MAX(max , prob[i]);
+        }
+
+        if(max >= 1)
+            reinit_game_mat();
+
+
+    }
+    while(max >= 1);
+
+}
+
+
+void reinit_seeker_hider()
+{
+    struct seeker* seeker = initialize_hider(game_engine_get_dimension() , game_engine_get_game_matrix());
+    struct hider* hider = initialize_seeker(game_engine_get_dimension() , game_engine_get_game_matrix());
+
+    find_hider_strategy(hider , game_engine_get_dimension());
+    find_seeker_strategy(seeker , game_engine_get_dimension());
+
+    game_engine_set_hider(hider);
+    game_engine_set_seeker(seeker);
+}
+void reinit_game_mat()
+{
+    free_vars();
+    init_game_matrix();
+    reinit_seeker_hider();
+}
+
+void free_vars()
+{
+    struct seeker* seeker = game_engine_get_seeker();
+    struct hider* hider = game_engine_get_hider();
+    FREE_MATRIX(seeker->constraints , game_engine_get_dimension());
+    FREE_MATRIX(hider->constraints , game_engine_get_dimension());
+    free(seeker->probabilities);
+    free(hider->probabilities);
+    free(seeker);
+    free(hider);
+
+    FREE_MATRIX(game_engine_get_game_matrix() , game_engine_get_dimension());
+    free(game_engine_get_chests());
+
+    game_engine_set_game_matrix(NULL);
+    game_engine_set_chests(NULL);
+}
 
 
 void init_chests()
@@ -87,6 +152,7 @@ void init_chests()
 
     int dim = game_engine_get_dimension();
     Chest* chests = ARRAY(Chest , dim);
+
     for(int i = 0 ; i < dim ; ++i)
     {
         chests[i].difficulty = generate_difficulty();
@@ -128,7 +194,7 @@ void init_game_matrix()
         }
     }
 
-   
+
 
     game_engine_set_game_matrix(game_matrix);
 }

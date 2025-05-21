@@ -18,6 +18,11 @@ bool invalid_pos(Chest* chests , int index);
 
 void set_box_rect(SDL_Rect* rect, int index);
 
+void check_valid_probablities();
+void reinit_seeker_hider();
+void reinit_game_mat();
+void free_vars();
+
 void init_game_matrix();
 
 void init_chests();
