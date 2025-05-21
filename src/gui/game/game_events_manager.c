@@ -83,6 +83,40 @@ void play_human_hider(int chest)
     int seeker_choice = choose_chest(game_engine_get_dimension() , seeker->probabilities);
 
     // animate_seeker(seeker_choice);
+
+    if (game_engine_get_is_2d())
+    {
+        if (seeker_choice == chest){
+                // seeker.score += SEEKER_GAIN[chest];
+                // hider.score -= SEEKER_GAIN[chest];
+                // animate_hider_caught();
+        }
+        else{
+            // seeker.score += HIDER_GAIN[chest];   //HIDER_GAIN[chest] is negative so keep the sign as it is
+            // hider.score -= HIDER_GAIN[chest];    //HIDER_GAIN[chest] is negative so keep the sign as it is
+            // animate_hider_uncaught();
+        }
+    }else{
+        if (seeker_choice == chest){
+                // seeker.score += SEEKER_GAIN[chest];
+                // hider.score -= SEEKER_GAIN[chest];
+                // animate_hider_caught();
+        }
+        else{
+            // double penalty = HIDER_GAIN[chest];
+            // if (abs(seeker_choice - chest) == 1)
+                // penalty *= 0.5;
+                //printf("\nPenalty multiplied by 0.5\n");
+            // else if (abs(seeker_choice - chest) == 2)
+                // penalty *= 0.75;
+                //printf("\nPenalty multiplied by 0.75\n");
+
+            // seeker.score += penalty; //HIDER_GAIN[chest] is negative so keep the sign as it is
+            // hider.score -= penalty;  //HIDER_GAIN[chest] is negative so keep the sign as it is
+            // animate_hider_uncaught();
+        }
+
+    
 }
 
 void play_human_seeker(int chest)
