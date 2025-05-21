@@ -117,6 +117,7 @@ void play_human_hider(int chest)
         }
 
     
+    }
 }
 
 void play_human_seeker(int chest)
