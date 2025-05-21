@@ -74,34 +74,26 @@ mouse_button_event_handler(SDL_Event* event)
 
 void play_human_hider(int chest)
 {
+    //HIDER TURN
+    // animate_hiding(chest);
 
+
+    // SEEKER TURN
     struct seeker* seeker = game_engine_get_seeker();
     int seeker_choice = choose_chest(game_engine_get_dimension() , seeker->probabilities);
 
-    if(seeker_choice == chest)
-    {
-        printf("Seeker found your ass %d\n" , seeker_choice);
-    }
-    else
-    {
-        printf("Seeker is blind %d\n" , seeker_choice);
-    }
+    // animate_seeker(seeker_choice);
 }
 
 void play_human_seeker(int chest)
 {
+    //HIDER TURN
     struct hider* hider = game_engine_get_hider();
-
     int hider_choice = choose_chest(game_engine_get_dimension() , hider->probabilities);
 
-    if(hider_choice == chest)
-    {
-        printf("I found your ass %d\n", hider_choice);
-    }
-    else
-    {
-        printf("I didnt find your ass %d\n", hider_choice);
-    }
+    // SEEKER TURN
+
+    // animate_seeker(chest);
 }
 
 void play_round(int chest)

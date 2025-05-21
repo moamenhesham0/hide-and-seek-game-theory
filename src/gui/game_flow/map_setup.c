@@ -52,7 +52,7 @@ void set_box_rect(SDL_Rect* rect , int index)
     bool is_2d = game_engine_get_is_2d();
 
     rect->x = is_2d ? (rand() % (MAP_FRAME_WIDTH)) : (index * MAP_FRAME_WIDTH / dim + 50);
-    rect->y = rand() % (MAP_FRAME_HEIGHT);
+    rect->y = is_2d ? (rand() % (MAP_FRAME_HEIGHT)) : (MAP_FRAME_HEIGHT/2 );
     rect->w = CHEST_FRAME_WIDTH/16;
     rect->h = CHEST_FRAME_HEIGHT/16;
 
@@ -61,6 +61,9 @@ void set_box_rect(SDL_Rect* rect , int index)
 
 bool invalid_pos(Chest* chests , int index)
 {
+    if(!game_engine_get_is_2d())
+        return false;
+
     SDL_Rect rect = chests[index].rect;
     if(rect.x < 50 || rect.x > MAP_FRAME_WIDTH - 50 ||
        rect.y < 30 || rect.y > MAP_FRAME_HEIGHT - 30)
@@ -72,9 +75,6 @@ bool invalid_pos(Chest* chests , int index)
             return true;
     }
 
-    if(!game_engine_get_is_2d())
-        return false;
-
     for(int i = 0 ; i < index  ; ++i)
     {
         if(SDL_HasIntersection(&rect , &(chests[i].rect)) == SDL_TRUE)
@@ -83,19 +83,20 @@ bool invalid_pos(Chest* chests , int index)
 
     return false;
 }
+
 void check_valid_probablities()
 {
     int dim = game_engine_get_dimension();
     double max = 0;
     do
     {
-        double* prob = game_engine_get_is_hider() ?
-        game_engine_get_seeker()->probabilities : game_engine_get_hider()->probabilities;
+        double* prob1 = game_engine_get_seeker()->probabilities ;
+        double* prob2 = game_engine_get_hider()->probabilities;
 
         max = 0;
         for(int i = 0 ; i < dim ; ++i)
         {
-            max = MAX(max , prob[i]);
+            max = MAX(MAX(max , prob2[i]), prob1[i]);
         }
 
         if(max >= 1)
@@ -119,6 +120,7 @@ void reinit_seeker_hider()
     game_engine_set_hider(hider);
     game_engine_set_seeker(seeker);
 }
+
 void reinit_game_mat()
 {
     free_vars();

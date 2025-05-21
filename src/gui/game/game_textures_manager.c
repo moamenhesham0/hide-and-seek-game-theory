@@ -97,7 +97,9 @@ game_engine_update_animations(GameEngine* engine)
         engine->frame_time %= engine->frame_delay;
 
         // Update each animated sprite's current frame
-        engine->map_current_frame = (engine->map_current_frame + 1) % engine->map_frame_count;
+        if(engine->is_2d)
+            engine->map_current_frame = (engine->map_current_frame + 1) % engine->map_frame_count;
+            
         engine->hider_current_frame = (engine->hider_current_frame + 1) % engine->hider_frame_count;
         engine->seeker_current_frame = (engine->seeker_current_frame + 1) % engine->seeker_frame_count;
         // engine->easy_chest_current_frame = (engine->easy_chest_current_frame + 1) % engine->easy_chest_frame_count;
@@ -122,7 +124,21 @@ render_game_objects(GameEngine* engine)
             MAP_FRAME_HEIGHT
         };
         SDL_Rect destRect = {0, 0, MAP_FRAME_WIDTH, MAP_FRAME_HEIGHT};
-        SDL_RenderCopy(engine->renderer, engine->map_texture, &srcRect, &destRect);
+
+        if(engine->is_2d)
+        {
+            SDL_RenderCopy(engine->renderer, engine->map_texture, &srcRect, &destRect);
+        }
+        else
+        {
+            SDL_RenderClear(engine->renderer);
+
+            // Create a full gray background rect
+            SDL_SetRenderDrawColor(engine->renderer, 100, 100, 100, 255); // Darker gray
+            SDL_RenderFillRect(engine->renderer, &srcRect);
+        }
+
+
     }
 
     if(engine->chests == NULL)
@@ -132,6 +148,8 @@ render_game_objects(GameEngine* engine)
     {
         Chest* chests = game_engine_get_chests();
         SDL_RenderCopy(engine->renderer, chests[i].texture, NULL, &(chests[i].rect));
+        render_hover(&chests[i]);
+
     }
 
     // Render hider character
@@ -148,18 +166,8 @@ render_game_objects(GameEngine* engine)
         SDL_RenderCopy(engine->renderer, engine->hider_texture, &srcRect, &destRect);
     }
 
-    if(engine->chests == NULL)
-        init_chests();
 
-    for(int i = 0 ; i < engine->dimension ; ++i)
-    {
-        Chest* chests = game_engine_get_chests();
-        SDL_RenderCopy(engine->renderer, chests[i].texture, NULL, &(chests[i].rect));
-        render_hover(&chests[i]);
-
-    }
-
-    // // Render seeker character
+    // Render seeker character
     if (engine->seeker_texture) {
         SDL_Rect srcRect = {
             engine->seeker_current_frame * CHARACTER_FRAME_WIDTH,
