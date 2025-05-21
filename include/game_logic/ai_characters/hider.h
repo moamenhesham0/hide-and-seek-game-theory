@@ -5,6 +5,7 @@ struct hider
 {
     double *probabilities; // Probabilities of hiding in each cell
     double **constraints;  // Constraints for each cell
+    double value; // Value of the strategy
 };
 
 

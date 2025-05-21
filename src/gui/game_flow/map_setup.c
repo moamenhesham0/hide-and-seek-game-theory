@@ -88,6 +88,7 @@ void check_valid_probablities()
 {
     int dim = game_engine_get_dimension();
     double max = 0;
+    int iterations = 0;
     do
     {
         double* prob1 = game_engine_get_seeker()->probabilities ;
@@ -99,12 +100,26 @@ void check_valid_probablities()
             max = MAX(MAX(max , prob2[i]), prob1[i]);
         }
 
-        if(max >= 1)
+        if(max >= 1 || game_engine_get_seeker()->value >= 1 || game_engine_get_hider()->value >= 1)
             reinit_game_mat();
 
 
     }
-    while(max >= 1);
+    while(iterations++ < MAX_ITERATIONS && (max >= 1 || game_engine_get_seeker()->value >= 1 || game_engine_get_hider()->value >= 1));
+
+    printf("Seeker probabilities: ");
+    for(int i = 0 ; i < dim ; ++i)
+    {
+        printf("%f " , game_engine_get_seeker()->probabilities[i]);
+    }
+    printf("\n");
+
+    printf("Hider probabilities: ");
+    for(int i = 0 ; i < dim ; ++i)
+    {
+        printf("%f " , game_engine_get_hider()->probabilities[i]);
+    }
+    printf("\n");
 
 }
 

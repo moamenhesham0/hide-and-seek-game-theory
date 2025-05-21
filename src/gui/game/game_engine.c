@@ -5,6 +5,7 @@
 #include "gui/game/events_manager.h"
 #include "gui/game/textures_manager.h"
 #include "gui/game_flow/map_setup.h"
+#include "game_logic/score.h"
 #include "macros.h"
 
 
@@ -73,7 +74,11 @@ game_engine_init(const char* title, int width, int height, int dimension, bool i
     engine->game_matrix = NULL;
     engine->chests = NULL;
 
-    init_game_matrix();
+    init_game_matrix(); // Initialize the game matrix
+
+    init_score();   // Initialize the score structure
+
+    
 
     engine->seeker =  initialize_seeker(dimension , engine->game_matrix);
     engine->hider = initialize_hider(dimension , engine->game_matrix);

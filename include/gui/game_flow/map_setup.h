@@ -8,6 +8,8 @@
 #define SEEKER_GAIN ((int[3]){1, 1, 3})
 #define HIDER_GAIN ((int[3]){-2, -1, -1})
 
+#define MAX_ITERATIONS 100
+
 
 
 Difficulty generate_difficulty();

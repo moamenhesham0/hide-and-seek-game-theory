@@ -89,5 +89,6 @@ void find_seeker_strategy(struct seeker *seeker, int num_chests) {
         seeker->probabilities[i] = vars[i];
     }
     printf("V: %.4f\n", vars[num_chests]);
+    seeker->value = vars[num_chests];
     delete_lp(lp);
 }

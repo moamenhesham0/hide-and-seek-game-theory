@@ -5,6 +5,7 @@ struct seeker
 {
     double *probabilities; // Probabilities of hiding in each cell
     double **constraints;  // Constraints for each cell
+    double value; // Value of the strategy
 };
 
 struct seeker* initialize_seeker(int num_chests, int **payoff_matrix);

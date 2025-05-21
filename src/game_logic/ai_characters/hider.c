@@ -74,5 +74,6 @@ void find_hider_strategy(struct hider *hider, int num_chests) {
         hider->probabilities[i] = vars[i];
     }
     printf("W: %.4f\n", vars[num_chests]);
+    hider->value = vars[num_chests];
     delete_lp(lp);
 }
