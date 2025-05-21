@@ -37,6 +37,11 @@
 #define CHARACTER_FRAME_COUNT 4
 
 
+#define MOVE_SPEED 17
+#define RUNNING_SPEED 25
+#define THRESHOLD_DIST 384
+
+
 void
 PNG_load(GameEngine* engine);
 
@@ -49,6 +54,9 @@ render_game_objects(GameEngine* engine);
 
 void
 render_hover(Chest* chest);
+
+void
+animate_movement(SDL_Rect* src , SDL_Rect* dst , int* curr_dir , bool is_hider);
 
 
 void

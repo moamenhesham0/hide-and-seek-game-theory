@@ -18,6 +18,8 @@
 
 #define UNINITIALIZED -1
 
+#define START_RECT (SDL_Rect){730, 180, CHARACTER_FRAME_WIDTH/8, CHARACTER_FRAME_HEIGHT/8}
+
 #define FAILED_RENDERER_MSG "Failed to create renderer: %s\n"
 #define FAILED_WINDOW_MSG "Failed to create window: %s\n"
 #define FAILED_INIT_MSG "SDL could not initialize! SDL_Error: %s\n"
@@ -26,7 +28,15 @@
 #define GAME_ENGINE_ALREADY_RUNNING_MSG "Game engine is already initialized.\n"
 #define GAME_ENGINE_DESTROY_MSG "Game engine destroyed.\n"
 
-
+typedef enum
+{
+    LEFTWARD,
+    RIGHTWARD,
+    DOWNWARD,
+    UPWARD,
+    DIRECTIONS_COUNT,
+}
+Directions;
 typedef enum
 {
     _EASY,
@@ -78,11 +88,21 @@ typedef struct GameEngine
     int map_current_frame;
     int map_frame_count;
 
+    // HIDER
     int hider_current_frame;
-    int hider_frame_count;
+    int hider_current_direction;
+    SDL_Rect hider_src_rect;
+    SDL_Rect hider_dst_rect;
+    int hider_choice;
+    bool is_hiding;
 
+
+    // SEEKER
     int seeker_current_frame;
-    int seeker_frame_count;
+    int seeker_current_direction;
+    SDL_Rect seeker_src_rect;
+    SDL_Rect seeker_dst_rect;
+    int seeker_choice;
 
     int easy_chest_current_frame;
     int easy_chest_frame_count;
@@ -102,6 +122,8 @@ typedef struct GameEngine
 void window_init(const char* title, int width, int height);
 
 void renderer_init();
+
+void init_characters_flags();
 
 void game_engine_init(const char* title, int width, int height , int dimension , bool is_2d , bool is_hider);
 
@@ -129,6 +151,20 @@ struct seeker* game_engine_get_seeker();
 
 void game_engine_set_hider(struct hider* hider);
 void game_engine_set_seeker(struct seeker* seeker);
+
+
+//HIDER
+void game_engine_set_hider_src_rect(SDL_Rect src);
+void game_engine_set_hider_dst_rect(SDL_Rect dst);
+void game_engine_set_hider_choice(int choice);
+void game_engine_set_is_hiding(int choice);
+int game_engine_get_hider_choice();
+
+//SEEKER
+void game_engine_set_seeker_src_rect(SDL_Rect src);
+void game_engine_set_seeker_dst_rect(SDL_Rect dst);
+void game_engine_set_seeker_choice(int choice);
+int game_engine_get_seeker_choice();
 
 SDL_Window* game_engine_get_window();
 

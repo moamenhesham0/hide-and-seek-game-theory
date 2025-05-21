@@ -3,7 +3,7 @@
 #include "game_logic/score.h"
 
 
-
+struct score *score = NULL;
 /* Initializes the score structure and returns struct score*/
 void init_score()
 {

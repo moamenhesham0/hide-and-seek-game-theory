@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 
+
 #define UNUSED __attribute__((unused))
 
 #define MAX(X,Y) (X>Y ? X : Y)
@@ -72,3 +73,9 @@
     (OBJ_RECT.y < BOUND_RECT.y + BOUND_RECT.h) &&       \
     (OBJ_RECT.y + OBJ_RECT.h > BOUND_RECT.y)            \
 )
+
+
+#define IS_SAME_RECT(OBJ_RECT, BOUND_RECT) (             \
+    (OBJ_RECT.x == BOUND_RECT.x) &&                      \
+    (OBJ_RECT.y == BOUND_RECT.y)                         \
+)                                                        \

@@ -72,22 +72,34 @@ mouse_button_event_handler(SDL_Event* event)
     }
 }
 
+
+
 void play_human_hider(int chest)
 {
     //HIDER TURN
-    // animate_hiding(chest);
+    game_engine_set_hider_choice(chest);
+    game_engine_set_hider_dst_rect(game_engine_get_chests()[chest].rect);
 
 
     // SEEKER TURN
     struct seeker* seeker = game_engine_get_seeker();
-    int seeker_choice = choose_chest(game_engine_get_dimension() , seeker->probabilities);
-    int **game_matrix = game_engine_get_game_matrix();
-    handle_score(seeker_choice , chest , game_matrix);
-    // animate_seeker(seeker_choice);
+
+
+    int seeker_choice = game_engine_get_seeker_choice();
+    if(seeker_choice == UNINITIALIZED)
+    {
+        seeker_choice = choose_chest(game_engine_get_dimension() , seeker->probabilities);
+        game_engine_set_seeker_choice(seeker_choice);
+        game_engine_set_seeker_dst_rect(game_engine_get_chests()[seeker_choice].rect);
+    }
 
 }
 
-void handle_score(int seeker_choice , int hider_chest, int **game_matrix){
+void handle_score(){
+    int seeker_choice = game_engine_get_seeker_choice();
+    int hider_chest = game_engine_get_hider_choice();
+    int** game_matrix = game_engine_get_game_matrix();
+
         if (game_engine_get_is_2d())
     {
         if (seeker_choice == hider_chest){
@@ -121,8 +133,9 @@ void handle_score(int seeker_choice , int hider_chest, int **game_matrix){
             // animate_hider_uncaught();
         }
 
-    
+
     }
+    init_characters_flags();
 
 }
 
@@ -130,22 +143,39 @@ void play_human_seeker(int chest)
 {
     //HIDER TURN
     struct hider* hider = game_engine_get_hider();
-    int hider_choice = choose_chest(game_engine_get_dimension() , hider->probabilities);
-    int **game_matrix = game_engine_get_game_matrix();
-    // SEEKER TURN
-    handle_score(chest , hider_choice , game_matrix);
+    int hider_choice = game_engine_get_hider_choice();
+    if(hider_choice == UNINITIALIZED)
+    {
+        hider_choice = choose_chest(game_engine_get_dimension() , hider->probabilities);
+        game_engine_set_hider_choice(hider_choice);
+    }
 
-    // animate_seeker(chest);
+    game_engine_set_hider_dst_rect(game_engine_get_chests()[hider_choice].rect);
+    game_engine_set_hider_src_rect(game_engine_get_chests()[hider_choice].rect);
+    game_engine_set_is_hiding(true);
+
+
+    // SEEKER TURN
+    game_engine_set_seeker_choice(chest);
+    game_engine_set_seeker_dst_rect(game_engine_get_chests()[chest].rect);
+
+
 }
 
 void play_round(int chest)
 {
     bool is_hider = game_engine_get_is_hider();
 
-    if(is_hider)
-        play_human_hider(chest);
-    else
-        play_human_seeker(chest);
+    switch(is_hider)
+    {
+        case HIDER:
+            play_human_hider(chest);
+            break;
+
+        case SEEKER:
+            play_human_seeker(chest);
+            break;
+    }
 }
 
 

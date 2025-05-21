@@ -51,6 +51,24 @@ renderer_init()
     }
 }
 
+
+void
+init_characters_flags()
+{
+    engine->hider_current_frame = 0;
+    engine->hider_current_direction = DOWNWARD;
+    engine->hider_src_rect = START_RECT;
+    engine->hider_dst_rect = START_RECT;
+    engine->hider_choice = UNINITIALIZED;
+    engine->is_hiding = false;
+
+    engine->seeker_current_frame = 0;
+    engine->seeker_current_direction = DOWNWARD;
+    engine->seeker_src_rect = START_RECT;
+    engine->seeker_dst_rect = START_RECT;
+    engine->seeker_choice = UNINITIALIZED;
+}
+
 /* Initializes the game engine */
 void
 game_engine_init(const char* title, int width, int height, int dimension, bool is_2d , bool is_hider)
@@ -78,10 +96,13 @@ game_engine_init(const char* title, int width, int height, int dimension, bool i
 
     init_score();   // Initialize the score structure
 
-    
+
+
 
     engine->seeker =  initialize_seeker(dimension , engine->game_matrix);
     engine->hider = initialize_hider(dimension , engine->game_matrix);
+
+    init_characters_flags();
 
     find_hider_strategy(engine->hider , dimension);
     find_seeker_strategy(engine->seeker , dimension);
@@ -92,10 +113,6 @@ game_engine_init(const char* title, int width, int height, int dimension, bool i
     engine->frame_delay = FRAME_DELAY;
     engine->map_frame_count = MAP_FRAME_COUNT;
     engine->map_current_frame = 0;
-    engine->hider_frame_count = CHARACTER_FRAME_COUNT;
-    engine->hider_current_frame = 0;
-    engine->seeker_frame_count = CHARACTER_FRAME_COUNT;
-    engine->seeker_current_frame = 0;
     engine->easy_chest_frame_count = CHEST_FRAME_COUNT;
     engine->easy_chest_current_frame = 0;
     engine->nutural_chest_frame_count = CHEST_FRAME_COUNT;
@@ -261,10 +278,66 @@ game_engine_set_is_2d(bool is_2d)
 }
 
 void
-game_engine_set_is_hider(bool is_hider)
+game_engine_set_hider_src_rect(SDL_Rect src)
 {
-    engine->is_hider = is_hider;
+    engine->hider_src_rect = src;
 }
+
+void
+game_engine_set_hider_dst_rect(SDL_Rect dst)
+{
+    engine->hider_dst_rect = dst;
+}
+
+void
+game_engine_set_seeker_src_rect(SDL_Rect src)
+{
+    engine->seeker_src_rect = src;
+}
+
+void
+game_engine_set_seeker_dst_rect(SDL_Rect dst)
+{
+    engine->seeker_dst_rect = dst;
+}
+
+void
+game_engine_set_hider_choice(int choice)
+{
+    engine->hider_choice = choice;
+}
+
+void
+game_engine_set_seeker_choice(int choice)
+{
+    engine->seeker_choice = choice;
+}
+
+int
+game_engine_get_hider_choice()
+{
+    return engine->hider_choice;
+}
+
+int
+game_engine_get_seeker_choice()
+{
+    return engine->seeker_choice;
+}
+
+void
+game_engine_set_is_hiding(int choice)
+{
+    engine->is_hiding = choice;
+}
+
+bool
+game_engine_get_is_hiding()
+{
+    return engine->is_hiding;
+}
+
+
 
 
 void

@@ -3,6 +3,9 @@
 #include "gui/game/textures.h"
 #include "gui/game_flow/map_setup.h"
 #include "gui/game/events_manager.h"
+#include "macros.h"
+#include <math.h>
+#include <stdio.h>
 
 void
 PNG_load(GameEngine* engine)
@@ -20,17 +23,22 @@ PNG_load(GameEngine* engine)
         return;
     }
 
-    SDL_Surface* hider_PNG = IMG_Load(ASSETS_DIR HIDER_SPRITE_SHEET);
-    if (!hider_PNG) {
-        printf(LOAD_HIDER_FAILED_MSG, IMG_GetError());
-        return;
+
+    if(engine->is_hider)
+    {
+        SDL_Surface* hider_PNG = IMG_Load(ASSETS_DIR HIDER_SPRITE_SHEET);
+        if (!hider_PNG) {
+            printf(LOAD_HIDER_FAILED_MSG, IMG_GetError());
+            return;
+        }
+        engine->hider_texture = SDL_CreateTextureFromSurface(engine->renderer, hider_PNG);
+        SDL_FreeSurface(hider_PNG);
+        if (!engine->hider_texture) {
+            fprintf(stderr, CREATE_HIDER_TEXTURE_FAILED_MSG, SDL_GetError());
+            return;
+        }
     }
-    engine->hider_texture = SDL_CreateTextureFromSurface(engine->renderer, hider_PNG);
-    SDL_FreeSurface(hider_PNG);
-    if (!engine->hider_texture) {
-        fprintf(stderr, CREATE_HIDER_TEXTURE_FAILED_MSG, SDL_GetError());
-        return;
-    }
+
 
     SDL_Surface* seeker_PNG = IMG_Load("assets/game/seeker_sprite_sheet.png");
     if (!seeker_PNG) {
@@ -99,9 +107,21 @@ game_engine_update_animations(GameEngine* engine)
         // Update each animated sprite's current frame
         if(engine->is_2d)
             engine->map_current_frame = (engine->map_current_frame + 1) % engine->map_frame_count;
-            
-        engine->hider_current_frame = (engine->hider_current_frame + 1) % engine->hider_frame_count;
-        engine->seeker_current_frame = (engine->seeker_current_frame + 1) % engine->seeker_frame_count;
+
+        if(!IS_SAME_RECT(engine->hider_src_rect , engine->hider_dst_rect))
+        {
+            engine->hider_current_frame = (engine->hider_current_frame + 1) % CHARACTER_FRAME_COUNT;
+            animate_movement(&engine->hider_src_rect , &engine->hider_dst_rect , &engine->hider_current_direction , HIDER);
+        }
+
+        if(!IS_SAME_RECT(engine->seeker_src_rect , engine->seeker_dst_rect) && engine->is_hiding)
+        {
+            engine->seeker_current_frame = (engine->seeker_current_frame + 1) % CHARACTER_FRAME_COUNT;
+            animate_movement(&engine->seeker_src_rect , &engine->seeker_dst_rect , &engine->seeker_current_direction , SEEKER);
+        }
+
+
+
         // engine->easy_chest_current_frame = (engine->easy_chest_current_frame + 1) % engine->easy_chest_frame_count;
         // engine->nutural_chest_current_frame = (engine->nutural_chest_current_frame + 1) % engine->nutural_chest_frame_count;
         // engine->hard_chest_current_frame = (engine->hard_chest_current_frame + 1) % engine->hard_chest_frame_count;
@@ -131,8 +151,6 @@ render_game_objects(GameEngine* engine)
         }
         else
         {
-            SDL_RenderClear(engine->renderer);
-
             // Create a full gray background rect
             SDL_SetRenderDrawColor(engine->renderer, 100, 100, 100, 255); // Darker gray
             SDL_RenderFillRect(engine->renderer, &srcRect);
@@ -153,32 +171,30 @@ render_game_objects(GameEngine* engine)
     }
 
     // Render hider character
-    if (engine->hider_texture) {
+    if (engine->hider_texture && !engine->is_hiding && engine->is_hider) {
         SDL_Rect srcRect = {
             engine->hider_current_frame * CHARACTER_FRAME_WIDTH,
-            0,
+            engine->hider_current_direction * CHARACTER_FRAME_HEIGHT,
             CHARACTER_FRAME_WIDTH,
             CHARACTER_FRAME_HEIGHT
         };
 
-        SDL_Rect destRect = {730, 180, CHARACTER_FRAME_WIDTH/8, CHARACTER_FRAME_HEIGHT/8};
 
-        SDL_RenderCopy(engine->renderer, engine->hider_texture, &srcRect, &destRect);
+        SDL_RenderCopy(engine->renderer, engine->hider_texture, &srcRect  , &engine->hider_src_rect);
     }
 
 
     // Render seeker character
-    if (engine->seeker_texture) {
+    if (engine->seeker_texture && engine->is_hiding) {
         SDL_Rect srcRect = {
             engine->seeker_current_frame * CHARACTER_FRAME_WIDTH,
-            0,
+            engine->seeker_current_direction * CHARACTER_FRAME_HEIGHT,
             CHARACTER_FRAME_WIDTH,
             CHARACTER_FRAME_HEIGHT
         };
 
-        SDL_Rect destRect = {500, 300, CHARACTER_FRAME_WIDTH/8, CHARACTER_FRAME_HEIGHT/8};
 
-        SDL_RenderCopy(engine->renderer, engine->seeker_texture, &srcRect, &destRect);
+        SDL_RenderCopy(engine->renderer, engine->seeker_texture, &srcRect, &engine->seeker_src_rect);
     }
 }
 
@@ -243,6 +259,46 @@ void render_hover(Chest* chest)
     // Restore original renderer settings
     SDL_SetRenderDrawColor(renderer, r, g, b, a);
     SDL_SetRenderDrawBlendMode(renderer, originalBlendMode);
+}
+
+
+void
+animate_movement(SDL_Rect* src , SDL_Rect* dst , int* curr_dir , bool is_hider)
+{
+    int dx = dst->x - src->x;
+    int dy = dst->y - src->y;
+
+
+    float distance = sqrt(dx*dx + dy*dy);
+
+    // Set appropriate character direction
+    if (abs(dx) > abs(dy)) {
+        *curr_dir = (dx > 0) ? RIGHTWARD : LEFTWARD;
+    } else {
+        *curr_dir = (dy > 0) ? DOWNWARD : UPWARD;
+    }
+
+    if (distance < MOVE_SPEED)
+    {
+        src->x  = dst->x;
+        src->y  = dst->y;
+        switch(is_hider)
+        {
+            case HIDER:
+                game_engine_set_is_hiding(true);
+                break;
+            case SEEKER:
+                handle_score();
+                break;
+        }
+    }
+    else
+    {
+        float ratio = (distance >= THRESHOLD_DIST ?RUNNING_SPEED : MOVE_SPEED) / distance;
+        src->x += dx * ratio;
+        src->y += dy * ratio;
+    }
+
 }
 
 
