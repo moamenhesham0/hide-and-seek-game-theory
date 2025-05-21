@@ -112,12 +112,19 @@ render_menu_objects(GameMenu* menu){
     // Render music button
     if(menu->music && menu->music->texture){
         SDL_SetRenderDrawColor(menu->renderer,
-                              menu->music->is_hovered ? 150 : 128,  // Gray values
-                              menu->music->is_hovered ? 150 : 128,  // Gray values
-                              menu->music->is_hovered ? 150 : 128,  // Gray values
-                              255);
+                      menu->music->is_hovered ? 150 : 128,  // Gray values
+                      menu->music->is_hovered ? 150 : 128,  // Gray values
+                      menu->music->is_hovered ? 150 : 128,  // Gray values
+                      255);
         SDL_RenderFillRect(menu->renderer, &menu->music->rect);
-        SDL_RenderCopy(menu->renderer, menu->music->texture, NULL, &menu->music->rect);
+        
+        SDL_Rect srcRect = {
+            menu->music_current_frame * MUSIC_FRAME_WIDTH,
+            0,
+            MUSIC_FRAME_WIDTH,
+            MUSIC_FRAME_HEIGHT
+        };
+        SDL_RenderCopy(menu->renderer, menu->music->texture, &srcRect, &menu->music->rect);
     }
 
     // Render hider seeker button

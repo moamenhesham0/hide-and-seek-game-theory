@@ -66,9 +66,11 @@ menu_handler(GameMenu* menu, SDL_Event event){
             printf("Music button clicked.\n");
             if (IS_MUSIC_MUTE) {
                 UNMUTE_MUSIC;
+                menu->music_current_frame = 0;
                 printf("Music unmuted.\n");
             } else {
                 MUTE_MUSIC;
+                menu->music_current_frame = 1;
                 printf("Music muted.\n");
             }
         }
