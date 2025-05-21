@@ -174,6 +174,7 @@ void init_chests()
     {
         chests[i].difficulty = generate_difficulty();
         chests[i].is_hovered = false;
+        chests[i].state = CLOSED;
         chests[i].texture = get_chest_texure(chests[i].difficulty);
         do
         {

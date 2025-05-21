@@ -18,7 +18,7 @@
 
 #define UNINITIALIZED -1
 
-#define START_RECT (SDL_Rect){730, 180, CHARACTER_FRAME_WIDTH/8, CHARACTER_FRAME_HEIGHT/8}
+#define START_RECT (SDL_Rect){740, 180, CHARACTER_FRAME_WIDTH/12, CHARACTER_FRAME_HEIGHT/12}
 
 #define FAILED_RENDERER_MSG "Failed to create renderer: %s\n"
 #define FAILED_WINDOW_MSG "Failed to create window: %s\n"
@@ -28,6 +28,28 @@
 #define GAME_ENGINE_ALREADY_RUNNING_MSG "Game engine is already initialized.\n"
 #define GAME_ENGINE_DESTROY_MSG "Game engine destroyed.\n"
 
+typedef enum
+{
+    NOT_HIDING,
+    HIDER_OPEN_BOX,
+    INSIDE_BOX,
+    HIDING,
+    SEEKING,
+    SEEKER_OPEN_BOX,
+    ROUND_END,
+}
+HiderFlags;
+typedef enum
+{
+    CLOSED,
+    OPENED,
+    HIDER_INSIDE,
+    SEEKER_FOUND_EMPTY,
+    SEEKER_FOUND_HIDER,
+
+    CHEST_STATE_COUNT,
+}
+ChestState;
 typedef enum
 {
     LEFTWARD,
@@ -51,6 +73,7 @@ typedef struct
     SDL_Texture* texture;
     bool is_hovered;
     Difficulty difficulty;
+    ChestState state;
 }
 Chest;
 typedef struct GameEngine
@@ -94,7 +117,7 @@ typedef struct GameEngine
     SDL_Rect hider_src_rect;
     SDL_Rect hider_dst_rect;
     int hider_choice;
-    bool is_hiding;
+    int hiding_flag;
 
 
     // SEEKER
@@ -156,15 +179,22 @@ void game_engine_set_seeker(struct seeker* seeker);
 //HIDER
 void game_engine_set_hider_src_rect(SDL_Rect src);
 void game_engine_set_hider_dst_rect(SDL_Rect dst);
+SDL_Rect game_engine_get_hider_src_rect();
+SDL_Rect game_engine_get_hider_dst_rect();
 void game_engine_set_hider_choice(int choice);
-void game_engine_set_is_hiding(int choice);
+void game_engine_set_hiding_flag(int choice);
+int game_engine_get_hiding_flag();
 int game_engine_get_hider_choice();
+void game_engine_set_hider_current_direction(int dir);
 
 //SEEKER
 void game_engine_set_seeker_src_rect(SDL_Rect src);
 void game_engine_set_seeker_dst_rect(SDL_Rect dst);
+SDL_Rect game_engine_get_seeker_src_rect();
+SDL_Rect game_engine_get_seeker_dst_rect();
 void game_engine_set_seeker_choice(int choice);
 int game_engine_get_seeker_choice();
+void game_engine_set_seeker_current_direction(int dir);
 
 SDL_Window* game_engine_get_window();
 

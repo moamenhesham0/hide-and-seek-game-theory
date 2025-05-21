@@ -135,8 +135,6 @@ void handle_score(){
 
 
     }
-    init_characters_flags();
-
 }
 
 void play_human_seeker(int chest)
@@ -152,7 +150,7 @@ void play_human_seeker(int chest)
 
     game_engine_set_hider_dst_rect(game_engine_get_chests()[hider_choice].rect);
     game_engine_set_hider_src_rect(game_engine_get_chests()[hider_choice].rect);
-    game_engine_set_is_hiding(true);
+    game_engine_set_hiding_flag(HIDING);
 
 
     // SEEKER TURN

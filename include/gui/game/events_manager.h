@@ -19,6 +19,8 @@ void quit_event_handler(SDL_Event*  event );
 
 void play_round(int chest);
 
+void handle_score();
+
 void play_human_hider(int chest);
 void play_human_seeker(int chest);
 

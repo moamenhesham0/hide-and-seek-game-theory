@@ -113,18 +113,20 @@ game_engine_update_animations(GameEngine* engine)
             engine->hider_current_frame = (engine->hider_current_frame + 1) % CHARACTER_FRAME_COUNT;
             animate_movement(&engine->hider_src_rect , &engine->hider_dst_rect , &engine->hider_current_direction , HIDER);
         }
+        else
+        {
+            hider_chest_action();
+        }
 
-        if(!IS_SAME_RECT(engine->seeker_src_rect , engine->seeker_dst_rect) && engine->is_hiding)
+        if(!IS_SAME_RECT(engine->seeker_src_rect , engine->seeker_dst_rect) && engine->hiding_flag == HIDING)
         {
             engine->seeker_current_frame = (engine->seeker_current_frame + 1) % CHARACTER_FRAME_COUNT;
             animate_movement(&engine->seeker_src_rect , &engine->seeker_dst_rect , &engine->seeker_current_direction , SEEKER);
         }
-
-
-
-        // engine->easy_chest_current_frame = (engine->easy_chest_current_frame + 1) % engine->easy_chest_frame_count;
-        // engine->nutural_chest_current_frame = (engine->nutural_chest_current_frame + 1) % engine->nutural_chest_frame_count;
-        // engine->hard_chest_current_frame = (engine->hard_chest_current_frame + 1) % engine->hard_chest_frame_count;
+        else
+        {
+            seeker_chest_action();
+        }
     }
 
     // Save current time for next update
@@ -165,13 +167,20 @@ render_game_objects(GameEngine* engine)
     for(int i = 0 ; i < engine->dimension ; ++i)
     {
         Chest* chests = game_engine_get_chests();
-        SDL_RenderCopy(engine->renderer, chests[i].texture, NULL, &(chests[i].rect));
-        render_hover(&chests[i]);
+        SDL_Rect srcRect = {
+            CHEST_FRAME_X_OFFSET,
+            chests[i].state*CHARACTER_FRAME_HEIGHT + CHEST_FRAME_Y_OFFSET,
+            CHEST_FRAME_WIDTH,
+            CHEST_FRAME_HEIGHT
+        };
+        SDL_RenderCopy(engine->renderer, chests[i].texture, &srcRect , &(chests[i].rect));
 
+        if(chests[i].state == CLOSED)
+            render_hover(&chests[i]);
     }
 
     // Render hider character
-    if (engine->hider_texture && !engine->is_hiding && engine->is_hider) {
+    if (engine->hider_texture && engine->hiding_flag <= HIDER_OPEN_BOX && engine->is_hider) {
         SDL_Rect srcRect = {
             engine->hider_current_frame * CHARACTER_FRAME_WIDTH,
             engine->hider_current_direction * CHARACTER_FRAME_HEIGHT,
@@ -185,7 +194,7 @@ render_game_objects(GameEngine* engine)
 
 
     // Render seeker character
-    if (engine->seeker_texture && engine->is_hiding) {
+    if (engine->seeker_texture && engine->hiding_flag >= HIDING && engine->hiding_flag < SEEKER_OPEN_BOX) {
         SDL_Rect srcRect = {
             engine->seeker_current_frame * CHARACTER_FRAME_WIDTH,
             engine->seeker_current_direction * CHARACTER_FRAME_HEIGHT,
@@ -261,6 +270,79 @@ void render_hover(Chest* chest)
     SDL_SetRenderDrawBlendMode(renderer, originalBlendMode);
 }
 
+void
+hider_chest_action()
+{
+    static uint32_t start;
+
+    if(game_engine_get_hiding_flag() >= HIDING || !IS_SAME_RECT(game_engine_get_hider_src_rect() , game_engine_get_chests()[game_engine_get_hider_choice()].rect))
+    {
+        return;
+    }
+
+    if(game_engine_get_hiding_flag() == NOT_HIDING)
+    {
+        start = SDL_GetTicks64();
+        game_engine_set_hiding_flag(HIDER_OPEN_BOX);
+        game_engine_get_chests()[game_engine_get_hider_choice()].state = OPENED;
+        game_engine_set_hider_current_direction(UPWARD);
+    }
+
+    uint32_t current_time = SDL_GetTicks64();
+    if (current_time - start >= HIDE_DELAY)
+    {
+            game_engine_set_hiding_flag(INSIDE_BOX);
+            game_engine_get_chests()[game_engine_get_hider_choice()].state = HIDER_INSIDE;
+    }
+
+    if(current_time - start >= BOX_CLOSE_DELAY + HIDE_DELAY)
+    {
+            game_engine_get_chests()[game_engine_get_hider_choice()].state = CLOSED;
+            game_engine_set_hiding_flag(HIDING);
+    }
+
+}
+
+void
+seeker_chest_action()
+{
+    static uint32_t start;
+    if(game_engine_get_hiding_flag() < HIDING || !IS_SAME_RECT(game_engine_get_seeker_src_rect() , game_engine_get_chests()[game_engine_get_seeker_choice()].rect))
+    {
+        return;
+    }
+
+    if(game_engine_get_hiding_flag() == HIDING)
+    {
+        start = SDL_GetTicks64();
+        game_engine_set_hiding_flag(SEEKING);
+        game_engine_set_seeker_current_direction(UPWARD);
+    }
+
+
+
+
+    uint32_t current_time = SDL_GetTicks64();
+    if (current_time - start >= HIDE_DELAY)
+    {
+        game_engine_set_hiding_flag(SEEKER_OPEN_BOX);
+        game_engine_get_chests()[game_engine_get_seeker_choice()].state = SEEKER_FOUND_EMPTY;
+    }
+
+    if(current_time - start >= BOX_CLOSE_DELAY + HIDE_DELAY)
+    {
+        if(game_engine_get_hider_choice() == game_engine_get_seeker_choice())
+        {
+            game_engine_get_chests()[game_engine_get_seeker_choice()].state = SEEKER_FOUND_HIDER;
+        }
+        else
+        {
+            game_engine_get_chests()[game_engine_get_hider_choice()].state = HIDER_INSIDE;
+        }
+        game_engine_set_hiding_flag(ROUND_END);
+    }
+
+}
 
 void
 animate_movement(SDL_Rect* src , SDL_Rect* dst , int* curr_dir , bool is_hider)
@@ -282,15 +364,6 @@ animate_movement(SDL_Rect* src , SDL_Rect* dst , int* curr_dir , bool is_hider)
     {
         src->x  = dst->x;
         src->y  = dst->y;
-        switch(is_hider)
-        {
-            case HIDER:
-                game_engine_set_is_hiding(true);
-                break;
-            case SEEKER:
-                handle_score();
-                break;
-        }
     }
     else
     {

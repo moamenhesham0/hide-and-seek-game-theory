@@ -60,7 +60,7 @@ init_characters_flags()
     engine->hider_src_rect = START_RECT;
     engine->hider_dst_rect = START_RECT;
     engine->hider_choice = UNINITIALIZED;
-    engine->is_hiding = false;
+    engine->hiding_flag = NOT_HIDING;
 
     engine->seeker_current_frame = 0;
     engine->seeker_current_direction = DOWNWARD;
@@ -99,15 +99,17 @@ game_engine_init(const char* title, int width, int height, int dimension, bool i
 
 
 
+
     engine->seeker =  initialize_seeker(dimension , engine->game_matrix);
     engine->hider = initialize_hider(dimension , engine->game_matrix);
 
-    init_characters_flags();
 
     find_hider_strategy(engine->hider , dimension);
     find_seeker_strategy(engine->seeker , dimension);
 
     check_valid_probablities();
+
+    init_characters_flags();
 
 
     engine->frame_delay = FRAME_DELAY;
@@ -326,16 +328,50 @@ game_engine_get_seeker_choice()
 }
 
 void
-game_engine_set_is_hiding(int choice)
+game_engine_set_hiding_flag(int flag)
 {
-    engine->is_hiding = choice;
+    engine->hiding_flag = flag;
 }
 
-bool
-game_engine_get_is_hiding()
+int
+game_engine_get_hiding_flag()
 {
-    return engine->is_hiding;
+    return engine->hiding_flag;
 }
+
+SDL_Rect
+game_engine_get_hider_src_rect()
+{
+    return engine->hider_src_rect;
+}
+SDL_Rect
+game_engine_get_hider_dst_rect()
+{
+    return engine->hider_dst_rect;
+}
+SDL_Rect
+game_engine_get_seeker_src_rect()
+{
+    return engine->seeker_src_rect;
+}
+SDL_Rect
+game_engine_get_seeker_dst_rect()
+{
+    return engine->seeker_dst_rect;
+}
+
+void game_engine_set_hider_current_direction(int dir)
+{
+    engine->hider_current_direction = dir;
+}
+void game_engine_set_seeker_current_direction(int dir)
+{
+    return engine->seeker_current_direction = dir;
+}
+
+
+
+
 
 
 
@@ -353,6 +389,15 @@ game_engine_render()
     render_game_objects(engine);
 
     SDL_RenderPresent(engine->renderer);
+
+    if(engine->hiding_flag == ROUND_END)
+    {
+        SDL_Delay(HIDE_DELAY + BOX_CLOSE_DELAY);
+        handle_score(HIDE_DELAY);
+        game_engine_get_chests()[engine->seeker_choice].state = CLOSED;
+        game_engine_get_chests()[engine->hider_choice].state = CLOSED;
+        init_characters_flags();
+    }
 }
 
 /* Handles events for the game engine */
