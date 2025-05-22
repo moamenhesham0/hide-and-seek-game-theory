@@ -20,6 +20,7 @@ int main(int argc, char* argv[])
     menu_destroy();
     if(play_game){
     game_engine_init("Game Engine", MIN_WIDTH, MIN_HEIGHT, dimension, is_2d , is_hider);
+    
     while (game_engine_run_status())
     {
         game_engine_handle_events();

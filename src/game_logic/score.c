@@ -5,6 +5,12 @@
 
 struct score *score = NULL;
 /* Initializes the score structure and returns struct score*/
+
+struct score* get_score()
+{
+    return score;
+}
+
 void init_score()
 {
     score = malloc(sizeof(struct score));

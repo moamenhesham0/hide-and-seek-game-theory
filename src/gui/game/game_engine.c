@@ -97,7 +97,6 @@ game_engine_init(const char* title, int width, int height, int dimension, bool i
 
     init_score();   // Initialize the score structure
 
-    side_menu_init(engine);
 
 
 
@@ -114,7 +113,7 @@ game_engine_init(const char* title, int width, int height, int dimension, bool i
 
     init_characters_flags();
 
-    side_menu_init(engine);
+    side_menu_init();
 
 
     engine->frame_delay = FRAME_DELAY;
