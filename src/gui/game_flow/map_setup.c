@@ -51,7 +51,7 @@ void set_box_rect(SDL_Rect* rect , int index , int col)
     int dim = game_engine_get_dimension();
     bool is_2d = game_engine_get_is_2d();
 
-    rect->x = is_2d ? (rand() % (MAP_FRAME_WIDTH)) : (index * MAP_FRAME_WIDTH / dim + 50);
+    rect->x = is_2d ? ((index%col) * (MAP_FRAME_WIDTH)/ sqrt(dim) +50) : (index * MAP_FRAME_WIDTH / dim + 50);
     rect->y = is_2d ? ((index/col) * MAP_FRAME_HEIGHT / dim + 30) : (MAP_FRAME_HEIGHT/2 );
     rect->w = CHEST_FRAME_WIDTH/16;
     rect->h = CHEST_FRAME_HEIGHT/16;
