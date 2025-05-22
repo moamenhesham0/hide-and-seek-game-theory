@@ -27,7 +27,7 @@
 #define FONT_PATH "./assets/Times_New_Roman_Bold.ttf"
 
 #define MUTE_MUSIC Mix_VolumeMusic(0)
-#define UNMUTE_MUSIC Mix_VolumeMusic(MIX_MAX_VOLUME / 8)
+#define UNMUTE_MUSIC Mix_VolumeMusic(MIX_MAX_VOLUME / 16)
 #define IS_MUSIC_MUTE Mix_VolumeMusic(-1) == 0
 
 
@@ -61,6 +61,7 @@ typedef struct GameMenu {
 
     SDL_Texture *places;
     SDL_Texture *mood;
+    Button *simulation;;
 
 
     // Game info

@@ -72,6 +72,18 @@ load_texture(GameMenu* menu){
         return;
     }
 
+    SDL_Surface* simulate_PNG = IMG_Load("assets/menu/simulation.png");
+    if (!simulate_PNG) {
+        printf("Failed to load simulation texture: %s\n", IMG_GetError());
+        return;
+    }
+    menu->simulation->texture = SDL_CreateTextureFromSurface(menu->renderer, simulate_PNG);
+    SDL_FreeSurface(simulate_PNG);
+    if (!menu->simulation) {
+        fprintf(stderr, "Failed to create simulation texture: %s\n", SDL_GetError());
+        return;
+    }
+
     // Enable transparency for all button textures
     if(menu->one_dimension->texture)
         SDL_SetTextureBlendMode(menu->one_dimension->texture, SDL_BLENDMODE_BLEND);
@@ -93,11 +105,11 @@ void
 load_button(GameMenu* menu){
     // One dimension button
     menu->one_dimension->is_hovered = false;
-    menu->one_dimension->rect = (SDL_Rect){296, 275, 200, 36};
+    menu->one_dimension->rect = (SDL_Rect){296, 225, 200, 36};
 
     // Two dimension button
     menu->two_dimension->is_hovered = false;
-    menu->two_dimension->rect = (SDL_Rect){296, 375, 200, 36};
+    menu->two_dimension->rect = (SDL_Rect){296, 325, 200, 36};
 
     // Exit button - moved to bottom left
     menu->exit->is_hovered = false;
@@ -113,6 +125,9 @@ load_button(GameMenu* menu){
     // Start button - moved to center
     menu->start->is_hovered = false;
     menu->start->rect = (SDL_Rect){350, 500, 105, 30};
+
+    menu->simulation->is_hovered = false;
+    menu->simulation->rect = (SDL_Rect){296, 425, 200, 36};
 }
 
 void
@@ -138,7 +153,7 @@ render_menu_objects(GameMenu* menu){
     
     // Render title
     if(menu->title){
-        SDL_Rect title_rect = {200, 100, 400, 100};
+        SDL_Rect title_rect = {200, 50, 400, 100};
         SDL_RenderCopy(menu->renderer, menu->title, NULL, &title_rect);
     }
 
@@ -160,6 +175,14 @@ render_menu_objects(GameMenu* menu){
                               menu->two_dimension->is_hovered ? 255 : 180);
         SDL_RenderCopy(menu->renderer, menu->two_dimension->texture, NULL, 
                       &menu->two_dimension->rect);
+    }
+
+    if(menu->simulation && menu->simulation->texture && !menu->play_menu) {
+        SDL_SetTextureBlendMode(menu->simulation->texture, SDL_BLENDMODE_BLEND);
+        SDL_SetTextureAlphaMod(menu->simulation->texture, 
+                              menu->simulation->is_hovered ? 255 : 180);
+        SDL_RenderCopy(menu->renderer, menu->simulation->texture, NULL, 
+                      &menu->simulation->rect);
     }
 
     // Render exit button

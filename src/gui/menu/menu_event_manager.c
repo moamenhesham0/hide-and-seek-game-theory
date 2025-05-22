@@ -1,5 +1,6 @@
 #include "gui/menu/menu_event_manager.h"
 #include "gui/game/events_manager.h"
+#include "game_logic/logic.h"
 #include <stdlib.h>
 
 void play_menu_handler(GameMenu* menu)
@@ -28,6 +29,7 @@ menu_handler(GameMenu* menu, SDL_Event event){
         menu->music->is_hovered = IS_MOUSE_INSIDE(x, y, menu->music->rect);
         menu->start->is_hovered = IS_MOUSE_INSIDE(x, y, menu->start->rect);
         menu->hider_seeker->is_hovered = IS_MOUSE_INSIDE(x, y, menu->hider_seeker->rect);
+        menu->simulation->is_hovered = IS_MOUSE_INSIDE(x, y, menu->simulation->rect);
     } else if (event.type == SDL_MOUSEBUTTONDOWN) {
         int x = event.button.x;
         int y = event.button.y;
@@ -42,6 +44,15 @@ menu_handler(GameMenu* menu, SDL_Event event){
         if(IS_MOUSE_INSIDE(x, y, menu->two_dimension->rect)){
             menu->is_2d = true;
             play_menu_handler(menu);
+        }
+
+        if(IS_MOUSE_INSIDE(x, y, menu->simulation->rect)){
+            // Handle simulation button click
+            printf("Simulation button clicked.\n");
+            menu->play_menu = false;
+            menu->is_2d = false;
+            menu->is_running = false;
+            simulate_games();
         }
 
         // Add check for clicking the input box

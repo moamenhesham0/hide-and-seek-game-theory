@@ -23,7 +23,7 @@ int play_music_thread(void *data) {
         return 1;
     }
 
-    Mix_VolumeMusic(MIX_MAX_VOLUME / 50);
+    Mix_VolumeMusic(MIX_MAX_VOLUME / 16);
 
     Mix_PlayMusic(music, -1);  // Loop infinitely
 
@@ -105,6 +105,7 @@ menu_init(const char *title, int width, int height)
     menu->two_dimension = (Button*) malloc(sizeof(Button));
     menu->exit = (Button*) malloc(sizeof(Button));
     menu->music = (Button*) malloc(sizeof(Button));
+    menu->simulation = (Button*) malloc(sizeof(Button));
     menu->music_current_frame = 0;
     menu->start = (Button*) malloc(sizeof(Button));
     menu->hider_seeker = (Button*) malloc(sizeof(Button));
