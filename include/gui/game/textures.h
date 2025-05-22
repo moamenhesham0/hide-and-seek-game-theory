@@ -9,6 +9,7 @@
 #define EASY_CHEST_IMG "easy_sprit_sheet.png"
 #define HARD_CHEST_IMG "hard_sprit_sheet.png"
 
+#define SIDE_MENU_IMG "scroll.png"
 
 
 

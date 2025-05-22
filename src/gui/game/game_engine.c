@@ -77,7 +77,7 @@ game_engine_init(const char* title, int width, int height, int dimension, bool i
         fprintf(stderr, GAME_ENGINE_ALREADY_RUNNING_MSG);
         return;
     }
-
+    TTF_Init();
     engine = (GameEngine*) malloc(sizeof(GameEngine));
 
     window_init(title, width, height);
@@ -91,6 +91,8 @@ game_engine_init(const char* title, int width, int height, int dimension, bool i
     engine->is_hider = is_hider;
     engine->game_matrix = NULL;
     engine->chests = NULL;
+
+    engine->font = TTF_OpenFont(FONT_PATH, 12);
 
     init_game_matrix(); // Initialize the game matrix
 
@@ -387,6 +389,8 @@ game_engine_render()
     SDL_RenderClear(engine->renderer);
 
     render_game_objects(engine);
+
+    render_side_menu(engine);
 
     SDL_RenderPresent(engine->renderer);
 

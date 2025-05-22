@@ -8,6 +8,7 @@ struct score
 
 
 void reset_score(struct score *score);
+struct score* get_score();
 void init_score();
 void update_score(float gain_penalty);
 

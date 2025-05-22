@@ -5,8 +5,9 @@
 #include "game_logic/ai_characters/hider.h"
 #include "game_logic/ai_characters/seeker.h"
 #include "game_logic/logic.h"
+#include <SDL2/SDL_ttf.h>
 
-#define MIN_WIDTH 1024
+#define MIN_WIDTH 1424
 #define MIN_HEIGHT 1024
 
 #define RUN_STATUS_RUNNING 1
@@ -90,6 +91,7 @@ typedef struct GameEngine
     SDL_Texture* easy_chest_texture;
     SDL_Texture* nutural_chest_texture;
     SDL_Texture* hard_chest_texture;
+    SDL_Texture* side_menu_texture;
 
     // Game info
     int dimension;
@@ -135,6 +137,8 @@ typedef struct GameEngine
 
     int hard_chest_current_frame;
     int hard_chest_frame_count;
+
+    TTF_Font* font;
 
 
     // Last time we updated animation

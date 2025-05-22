@@ -66,6 +66,8 @@ render_hover(Chest* chest);
 void
 animate_movement(SDL_Rect* src , SDL_Rect* dst , int* curr_dir , bool is_hider);
 
+void
+render_side_menu(GameEngine * engine );
 
 void
 destroy_texture(GameEngine* engine);

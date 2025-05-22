@@ -4,6 +4,7 @@
 #include "gui/game_flow/map_setup.h"
 #include "gui/game/events_manager.h"
 #include "macros.h"
+#include "game_logic/score.h"
 #include <math.h>
 #include <stdio.h>
 
@@ -23,21 +24,26 @@ PNG_load(GameEngine* engine)
         return;
     }
 
-
-    if(engine->is_hider)
-    {
-        SDL_Surface* hider_PNG = IMG_Load(ASSETS_DIR HIDER_SPRITE_SHEET);
-        if (!hider_PNG) {
-            printf(LOAD_HIDER_FAILED_MSG, IMG_GetError());
-            return;
-        }
-        engine->hider_texture = SDL_CreateTextureFromSurface(engine->renderer, hider_PNG);
-        SDL_FreeSurface(hider_PNG);
-        if (!engine->hider_texture) {
-            fprintf(stderr, CREATE_HIDER_TEXTURE_FAILED_MSG, SDL_GetError());
-            return;
-        }
+    SDL_Surface* side_menu_PNG = IMG_Load(ASSETS_DIR SIDE_MENU_IMG);
+    if (!side_menu_PNG) {
+        printf(LOAD_MAP_FAILED_MSG, IMG_GetError());
+        return;
     }
+    engine->side_menu_texture = SDL_CreateTextureFromSurface(engine->renderer, side_menu_PNG);
+
+
+    SDL_Surface* hider_PNG = IMG_Load(ASSETS_DIR HIDER_SPRITE_SHEET);
+    if (!hider_PNG) {
+        printf(LOAD_HIDER_FAILED_MSG, IMG_GetError());
+        return;
+    }
+    engine->hider_texture = SDL_CreateTextureFromSurface(engine->renderer, hider_PNG);
+    SDL_FreeSurface(hider_PNG);
+    if (!engine->hider_texture) {
+        fprintf(stderr, CREATE_HIDER_TEXTURE_FAILED_MSG, SDL_GetError());
+        return;
+    }
+
 
 
     SDL_Surface* seeker_PNG = IMG_Load("assets/game/seeker_sprite_sheet.png");
@@ -373,6 +379,226 @@ animate_movement(SDL_Rect* src , SDL_Rect* dst , int* curr_dir , bool is_hider)
     }
 
 }
+
+
+void render_text(SDL_Renderer* renderer, TTF_Font* font, const char* text, SDL_Color color, int x, int y)
+{
+    if (!font) return;
+
+    SDL_Surface* textSurface = TTF_RenderText_Blended(font, text, color);
+    if (!textSurface) return;
+
+    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+    SDL_Rect textRect = {x, y, textSurface->w, textSurface->h};
+
+    SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
+
+    SDL_FreeSurface(textSurface);
+    SDL_DestroyTexture(textTexture);
+}
+
+void
+render_side_menu(GameEngine* engine)
+{
+    // Define the side menu boundaries
+
+    SDL_Rect menuBoundary = {1065, 96, 333, 821};
+
+    // Render the side menu background within the specified boundaries
+    SDL_RenderCopy(engine->renderer, engine->side_menu_texture, NULL, &((SDL_Rect){1024,0,400,1024}));
+
+    // Get game data
+    struct hider* hider = game_engine_get_hider();
+    struct seeker* seeker = game_engine_get_seeker();
+    int** payoff_matrix = game_engine_get_game_matrix();
+    int dimension = game_engine_get_dimension();
+    struct score* score = get_score(); // Access the score
+
+    // Setup font and colors
+    TTF_Font* titleFont = engine->font;
+    TTF_Font* font = engine->font;
+    TTF_Font* smallFont = engine->font;
+
+    SDL_Color white = {255, 255, 255, 255};
+    SDL_Color gold = {255, 215, 0, 255};
+    SDL_Color green = {100, 255, 100, 255};
+    SDL_Color red = {255, 100, 100, 255};
+
+    // Starting position within the menu boundaries
+    int baseX = menuBoundary.x + 10;  // Adding padding from left edge
+    int y_offset = menuBoundary.y + 20;
+    int padding = 10;
+
+    // --- TITLE ---
+    render_text(engine->renderer, titleFont, "HIDE AND SEEK", gold, baseX + 80, y_offset);
+    y_offset += 35;
+
+    // --- LEGENDS ---
+    render_text(engine->renderer, font, "LEGENDS:", white, baseX, y_offset);
+    y_offset += 25;
+
+    // Chest difficulty colors
+    render_text(engine->renderer, smallFont, "Easy:", green, baseX, y_offset);
+    SDL_SetRenderDrawColor(engine->renderer, 100, 200, 100, 255);
+    SDL_Rect easyRect = {baseX + 80, y_offset, 20, 20};
+    SDL_RenderFillRect(engine->renderer, &easyRect);
+
+    render_text(engine->renderer, smallFont, "Neutral:", gold, baseX + 150, y_offset);
+    SDL_SetRenderDrawColor(engine->renderer, 200, 200, 0, 255);
+    SDL_Rect neutralRect = {baseX + 230, y_offset, 20, 20};
+    SDL_RenderFillRect(engine->renderer, &neutralRect);
+
+    y_offset += 25;
+    render_text(engine->renderer, smallFont, "Hard:", red, baseX, y_offset);
+    SDL_SetRenderDrawColor(engine->renderer, 200, 80, 80, 255);
+    SDL_Rect hardRect = {baseX + 80, y_offset, 20, 20};
+    SDL_RenderFillRect(engine->renderer, &hardRect);
+
+    y_offset += 30;
+
+    // Horizontal separator
+    SDL_SetRenderDrawColor(engine->renderer, 180, 180, 180, 100);
+    SDL_Rect separatorRect = {baseX, y_offset, menuBoundary.w - 20, 1};
+    SDL_RenderFillRect(engine->renderer, &separatorRect);
+    y_offset += 15;
+
+    // --- SCORE ---
+    render_text(engine->renderer, font, "SCORE:", white, baseX, y_offset);
+    y_offset += 25;
+
+    char scoreText[100];
+    if (score) {
+        snprintf(scoreText, 100, "Hider: %.2f", score->hider_score);
+        render_text(engine->renderer, smallFont, scoreText, green, baseX, y_offset);
+
+        render_text(engine->renderer, smallFont, "Seeker: %.2f", red, baseX + 150, y_offset);
+        snprintf(scoreText, 100, "%.2f", score->seeker_score);
+        render_text(engine->renderer, smallFont, scoreText, white, baseX + 220, y_offset);
+    } else {
+        render_text(engine->renderer, smallFont, "Score data unavailable", white, baseX, y_offset);
+    }
+
+    y_offset += 25;
+
+    // Horizontal separator
+    SDL_SetRenderDrawColor(engine->renderer, 180, 180, 180, 100);
+    separatorRect.y = y_offset;
+    SDL_RenderFillRect(engine->renderer, &separatorRect);
+    y_offset += 15;
+
+    // --- PAYOFF MATRIX ---
+    render_text(engine->renderer, font, "PAYOFF MATRIX:", white, baseX, y_offset);
+    y_offset += 25;
+
+    if (payoff_matrix && dimension > 0) {
+        int cellSize = 25;  // Slightly smaller cells to fit in narrower space
+        int maxDisplayedDim = MIN(dimension, 50); // Limit display to 5x5
+
+        // Draw column headers (Seeker choices)
+        render_text(engine->renderer, smallFont, "S\\H", white, baseX, y_offset);
+        for (int j = 0; j < maxDisplayedDim; j++) {
+            char colHeader[10];
+            snprintf(colHeader, 10, "%d", j+1);
+            render_text(engine->renderer, smallFont, colHeader, white,
+                      baseX + cellSize + j * cellSize, y_offset);
+        }
+        y_offset += 20;
+
+        // Draw rows with row headers
+        for (int i = 0; i < maxDisplayedDim; i++) {
+            char rowHeader[10];
+            snprintf(rowHeader, 10, "%d", i+1);
+            render_text(engine->renderer, smallFont, rowHeader, white,
+                      baseX, y_offset + i * cellSize);
+
+            for (int j = 0; j < maxDisplayedDim; j++) {
+                char cellValue[10];
+                snprintf(cellValue, 10, "%d", payoff_matrix[i][j]);
+                render_text(engine->renderer, smallFont, cellValue, white,
+                          baseX + cellSize + j * cellSize, y_offset + i * cellSize);
+            }
+        }
+
+        y_offset += cellSize * maxDisplayedDim + 10;
+
+        if (dimension > maxDisplayedDim) {
+            render_text(engine->renderer, smallFont, "Matrix truncated...", white, baseX, y_offset);
+            y_offset += 20;
+        }
+    } else {
+        render_text(engine->renderer, smallFont, "Matrix data unavailable", white, baseX, y_offset);
+        y_offset += 20;
+    }
+
+    // Horizontal separator
+    SDL_SetRenderDrawColor(engine->renderer, 180, 180, 180, 100);
+    separatorRect.y = y_offset;
+    SDL_RenderFillRect(engine->renderer, &separatorRect);
+    y_offset += 15;
+
+    // --- PROBABILITIES ---
+    render_text(engine->renderer, font, "STRATEGIES:", white, baseX, y_offset);
+    y_offset += 25;
+
+    // Hider probabilities
+    render_text(engine->renderer, smallFont, "Hider Probabilities:", green, baseX, y_offset);
+    y_offset += 20;
+
+    if (hider && hider->probabilities) {
+        // Use two columns to save vertical space
+        int probs_per_row = 2;
+        int displayLimit = MIN(dimension, 8); // Show fewer to fit in space
+
+        for (int i = 0; i < displayLimit; i++) {
+            char probText[30];
+            snprintf(probText, 30, "Box %d: %.2f", i+1, hider->probabilities[i]);
+            render_text(engine->renderer, smallFont, probText, white,
+                      baseX + (i % probs_per_row) * 160,
+                      y_offset + (i / probs_per_row) * 20);
+        }
+
+        y_offset += ((displayLimit + probs_per_row - 1) / probs_per_row) * 20 + 5;
+
+        if (dimension > displayLimit) {
+            render_text(engine->renderer, smallFont, "More probabilities...", white, baseX, y_offset);
+            y_offset += 20;
+        }
+    } else {
+        render_text(engine->renderer, smallFont, "Hider data unavailable", white, baseX, y_offset);
+        y_offset += 20;
+    }
+
+    // Seeker probabilities
+    render_text(engine->renderer, smallFont, "Seeker Probabilities:", red, baseX, y_offset);
+    y_offset += 20;
+
+    if (seeker && seeker->probabilities) {
+        int probs_per_row = 2;
+        int displayLimit = MIN(dimension, 8); // Show fewer to fit in space
+
+        for (int i = 0; i < displayLimit; i++) {
+            char probText[30];
+            snprintf(probText, 30, "Box %d: %.2f", i+1, seeker->probabilities[i]);
+            render_text(engine->renderer, smallFont, probText, white,
+                      baseX + (i % probs_per_row) * 160,
+                      y_offset + (i / probs_per_row) * 20);
+        }
+
+        // Don't need to update y_offset here as we're at the end
+    } else {
+        render_text(engine->renderer, smallFont, "Seeker data unavailable", white, baseX, y_offset);
+    }
+
+    // Ensure we don't draw outside our boundaries
+    if (y_offset > menuBoundary.y + menuBoundary.h - 20) {
+        // We've gone too far - in a full implementation, you might need to adjust layout
+        printf("Warning: Side menu content exceeds available height\n");
+    }
+}
+
+// Helper function to render text
+
+
 
 
 

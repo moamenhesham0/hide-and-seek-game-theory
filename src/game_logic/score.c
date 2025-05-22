@@ -12,6 +12,11 @@ void init_score()
     score->hider_score = 0;
 }
 
+struct score* get_score()
+{
+    return score;
+}
+
 /* Reset the score structure to initial values */
 void reset_score(struct score *score)
 {
