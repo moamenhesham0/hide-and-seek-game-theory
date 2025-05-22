@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct hider* initialize_hider(int num_chests, int **payoff_matrix) {
+struct hider* initialize_hider(int num_chests, double **payoff_matrix) {
     struct hider* s = malloc(sizeof(struct hider));
     s->probabilities = (double *)malloc(num_chests * sizeof(double));
     s->constraints = (double **)malloc(num_chests * sizeof(double *));

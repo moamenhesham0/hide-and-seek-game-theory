@@ -8,7 +8,7 @@
  * This file contains the logic for the seeker character in the game.
  * The seeker uses linear programming to determine the optimal strategy.
  */
-struct seeker* initialize_seeker(int num_chests, int **payoff_matrix) {
+struct seeker* initialize_seeker(int num_chests, double **payoff_matrix) {
     struct seeker* s = malloc(sizeof(struct seeker));
     s->probabilities = (double *)malloc(num_chests * sizeof(double));
     s->constraints = (double **)malloc(num_chests * sizeof(double *));

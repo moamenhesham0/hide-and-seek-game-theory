@@ -95,47 +95,20 @@ void play_human_hider(int chest)
 
 }
 
+
+
+
 void handle_score(){
     int seeker_choice = game_engine_get_seeker_choice();
     int hider_chest = game_engine_get_hider_choice();
-    int** game_matrix = game_engine_get_game_matrix();
+    double** game_matrix = game_engine_get_game_matrix();
 
-        if (game_engine_get_is_2d())
-    {
-        if (seeker_choice == hider_chest){
-                update_score((float)game_matrix[seeker_choice][hider_chest]);
-                printf("Seeker caught the hider: %d\n", game_matrix[seeker_choice][hider_chest]);
-                // animate_hider_caught();
-        }
-        else{
-            update_score((float)game_matrix[seeker_choice][hider_chest]);
-            printf("Seeker uncaught the hider: %d\n", game_matrix[seeker_choice][hider_chest]);
-            // animate_hider_uncaught();
-        }
-    }else{
-        if (seeker_choice == hider_chest){
-                update_score((float)game_matrix[seeker_choice][hider_chest]);
-                printf("Seeker caught the hider: %d\n", game_matrix[seeker_choice][hider_chest]);
-                // animate_hider_caught();
-        }
-        else{
-            float penalty = game_matrix[seeker_choice][hider_chest];
-            if (abs(seeker_choice - hider_chest) == 1){
-                penalty *= 0.5;
-                printf("Penalty multiplied by 0.5\n");
-            }
-            else if (abs(seeker_choice - hider_chest) == 2){
-                penalty *= 0.75;
-                printf("Penalty multiplied by 0.75\n");
-            }
-            update_score(penalty);
-            printf("Seeker uncaught the hider: %.2f\n", penalty);
-            // animate_hider_uncaught();
-        }
+    double score = game_matrix[hider_chest][seeker_choice];
+    update_score(score);
 
 
     }
-}
+
 
 void play_human_seeker(int chest)
 {

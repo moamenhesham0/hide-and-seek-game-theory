@@ -8,7 +8,7 @@ struct seeker
     double value; // Value of the strategy
 };
 
-struct seeker* initialize_seeker(int num_chests, int **payoff_matrix);
+struct seeker* initialize_seeker(int num_chests, double **payoff_matrix);
 void find_seeker_strategy(struct seeker *seeker, int num_chests);
 
 #endif // HIDER_H

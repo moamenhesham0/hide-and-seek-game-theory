@@ -39,7 +39,7 @@ SDL_Texture* get_chest_texure(Difficulty diff)
     }
 }
 
-void set_box_rect(SDL_Rect* rect , int index)
+void set_box_rect(SDL_Rect* rect , int index , int col)
 {
     static bool initialized = false;
     if (!initialized)
@@ -52,7 +52,7 @@ void set_box_rect(SDL_Rect* rect , int index)
     bool is_2d = game_engine_get_is_2d();
 
     rect->x = is_2d ? (rand() % (MAP_FRAME_WIDTH)) : (index * MAP_FRAME_WIDTH / dim + 50);
-    rect->y = is_2d ? (rand() % (MAP_FRAME_HEIGHT)) : (MAP_FRAME_HEIGHT/2 );
+    rect->y = is_2d ? ((index/col) * MAP_FRAME_HEIGHT / dim + 30) : (MAP_FRAME_HEIGHT/2 );
     rect->w = CHEST_FRAME_WIDTH/16;
     rect->h = CHEST_FRAME_HEIGHT/16;
 
@@ -131,7 +131,7 @@ void reinit_seeker_hider()
 
     find_hider_strategy(hider , game_engine_get_dimension());
     find_seeker_strategy(seeker , game_engine_get_dimension());
-
+\
     game_engine_set_hider(hider);
     game_engine_set_seeker(seeker);
 }
@@ -170,22 +170,65 @@ void init_chests()
     int dim = game_engine_get_dimension();
     Chest* chests = ARRAY(Chest , dim);
 
+    const int j = sqrt(dim);
     for(int i = 0 ; i < dim ; ++i)
     {
         chests[i].difficulty = generate_difficulty();
         chests[i].is_hovered = false;
         chests[i].state = CLOSED;
         chests[i].texture = get_chest_texure(chests[i].difficulty);
-        do
-        {
-            set_box_rect(&(chests[i].rect ), i);
-        }
-        while(invalid_pos(chests , i));
+        // do
+        // {
+        set_box_rect(&(chests[i].rect ), i , j);
+        // }
+        // while(invalid_pos(chests , i));
     }
 
     game_engine_set_chests(chests);
 }
+void
+linear_prox(double* val , int hider , int seeker , int diff)
+{
+    if(abs(hider - seeker) == 1)
+        *val = (double)HIDER_GAIN[diff] * 0.5;
+    else if(abs(hider - seeker) == 2)
+        *val = (double)HIDER_GAIN[diff] * 0.75;
+    else
+        *val = (double)HIDER_GAIN[diff];
+}
 
+
+void proximity_dfs(float* ratio , int depth , int x_t , int y_t , int x_s , int y_s , const int limit_x , const int limit_y)
+{
+    if (depth > 2 || x_s >= limit_x || y_s >= limit_y || x_s < 0 || y_s < 0)
+        return;
+
+    if (x_t == x_s && y_t == y_s)
+    {
+        float new_ratio = depth == 1 ? 0.5 : 0.75;
+        MAX(*ratio , new_ratio);
+    }
+
+    proximity_dfs(ratio , depth + 1 , x_t  , y_t , x_s , y_s+1 , limit_x , limit_y);
+    proximity_dfs(ratio , depth + 1 , x_t  , y_t , x_s , y_s-1 , limit_x , limit_y);
+    proximity_dfs(ratio , depth + 1 , x_t , y_t, x_s+1 , y_s , limit_x , limit_y);
+    proximity_dfs(ratio , depth + 1 , x_t , y_t  , x_s-1 , y_s , limit_x , limit_y);
+}
+
+
+void
+_2d_prox(double* val , int hider , int seeker , int diff)
+{
+    float ratio = 0;
+    int x_s = seeker % (int)sqrt(game_engine_get_dimension());
+    int y_s = seeker / (int)sqrt(game_engine_get_dimension());
+    int x_t = hider % (int)sqrt(game_engine_get_dimension());
+    int y_t = hider / (int)sqrt(game_engine_get_dimension());
+    int limit_x = (int)sqrt(game_engine_get_dimension());
+    int limit_y = (int)sqrt(game_engine_get_dimension());
+    proximity_dfs(&ratio , 0 , x_t , y_t , x_s , y_s , limit_x , limit_y);
+    *val = (double)HIDER_GAIN[diff] * (ratio? ratio : 1);
+}
 void init_game_matrix()
 {
     if(game_engine_get_chests() == NULL)
@@ -194,7 +237,7 @@ void init_game_matrix()
     int dim = game_engine_get_dimension();
     Chest* chests = game_engine_get_chests();
 
-    int** game_matrix = MATRIX(int , dim , dim);
+    double** game_matrix = MATRIX(double , dim , dim);
 
     for(int i = 0 ; i < dim ; ++i)
     {
@@ -207,7 +250,19 @@ void init_game_matrix()
                 game_matrix[i][j] = SEEKER_GAIN[difficulty];
 
             else
-                game_matrix[i][j] = HIDER_GAIN[difficulty];
+            {
+                switch(game_engine_get_is_2d())
+                {
+                    case true:
+                        linear_prox(&(game_matrix[i][j]) , i , j , difficulty);
+                        break;
+
+                    case false:
+                        _2d_prox(&(game_matrix[i][j]) , i , j , difficulty);
+                        break;
+                }
+            }
+
 
         }
     }

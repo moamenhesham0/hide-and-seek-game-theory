@@ -87,7 +87,7 @@ game_engine_init(const char* title, int width, int height, int dimension, bool i
 
     PNG_load(engine);
 
-    engine->dimension = dimension;
+    engine->dimension = is_2d ? dimension*dimension : dimension;
     engine->is_2d = is_2d;
     engine->is_hider = is_hider;
     engine->game_matrix = NULL;
@@ -101,12 +101,12 @@ game_engine_init(const char* title, int width, int height, int dimension, bool i
 
 
 
-    engine->seeker =  initialize_seeker(dimension , engine->game_matrix);
-    engine->hider = initialize_hider(dimension , engine->game_matrix);
+    engine->seeker =  initialize_seeker(engine->dimension , engine->game_matrix);
+    engine->hider = initialize_hider(engine->dimension , engine->game_matrix);
 
 
-    find_hider_strategy(engine->hider , dimension);
-    find_seeker_strategy(engine->seeker , dimension);
+    find_hider_strategy(engine->hider , engine->dimension);
+    find_seeker_strategy(engine->seeker , engine->dimension);
 
     check_valid_probablities();
 
@@ -221,7 +221,7 @@ game_engine_get_is_hider()
 }
 
 /* Returns the game matrix of the game engine */
-int**
+double**
 game_engine_get_game_matrix()
 {
     return engine->game_matrix;
@@ -265,7 +265,7 @@ game_engine_set_chests(Chest* chests)
 }
 
 void
-game_engine_set_game_matrix(int** matrix)
+game_engine_set_game_matrix(double** matrix)
 {
     engine->game_matrix = matrix;
 }

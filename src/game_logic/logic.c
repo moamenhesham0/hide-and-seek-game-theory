@@ -59,9 +59,9 @@ void simulate_games() {
         {-1, -1, -1,  3}
     };
 
-    int **payoff_matrix = malloc(num_chests * sizeof(int *));
+    double **payoff_matrix = malloc(num_chests * sizeof(double *));
     for (int i = 0; i < num_chests; i++) {
-        payoff_matrix[i] = malloc(num_chests * sizeof(int));
+        payoff_matrix[i] = malloc(num_chests * sizeof(double));
         for (int j = 0; j < num_chests; j++) {
             payoff_matrix[i][j] = fixed_payoff[i][j];
         }
@@ -97,7 +97,7 @@ void simulate_games() {
         seeker_picks[chosen_guess]++;
         hider_picks[chosen_hide]++;
 
-        int reward = payoff_matrix[chosen_guess][chosen_hide];
+        double reward = payoff_matrix[chosen_guess][chosen_hide];
         seeker_score += reward;
         hider_score += -reward;
 

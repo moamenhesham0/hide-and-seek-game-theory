@@ -25,7 +25,7 @@ bool dragging_h_scrollbar = false;
 int dimension = 0;
 
 // Sample data
-static int** payoff_matrix;
+static double** payoff_matrix;
 static double* hider_probabilities;
 static double* seeker_probabilities;
 static float hider_score = 750;
@@ -397,7 +397,7 @@ void draw_payoff_matrix(cairo_t *cr, int x, int y, int scroll_x_offset, int scro
             // Cell text
             cairo_set_source_rgb(cr, DARK_BROWN);
             char text[16];
-            snprintf(text, sizeof(text), "%.2f", value);
+            snprintf(text, sizeof(text), "%.2lf", value);
             cairo_move_to(cr, start_x + c * CELL_W + 5, start_y + r * CELL_H + 20);
             cairo_show_text(cr, text);
         }

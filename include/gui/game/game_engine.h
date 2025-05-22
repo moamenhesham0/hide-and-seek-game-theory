@@ -96,7 +96,7 @@ typedef struct GameEngine
     int dimension;
     bool is_2d;
     bool is_hider;
-    int** game_matrix;
+    double** game_matrix;
     Chest* chests;
 
     //Players
@@ -161,12 +161,12 @@ bool game_engine_get_is_2d();
 
 bool game_engine_get_is_hider();
 
-int** game_engine_get_game_matrix();
+double** game_engine_get_game_matrix();
 
 Chest* game_engine_get_chests();
 
 void game_engine_set_chests(Chest* chests);
-void game_engine_set_game_matrix(int** matrix);
+void game_engine_set_game_matrix(double** matrix);
 void game_engine_set_dimension(int dimension);
 void game_engine_set_is_2d(bool is_2d);
 void game_engine_set_is_hider(bool is_hider);
