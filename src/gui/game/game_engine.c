@@ -6,6 +6,7 @@
 #include "gui/game/textures_manager.h"
 #include "gui/game_flow/map_setup.h"
 #include "game_logic/score.h"
+#include "gui/sidemenu/sidemenu.h"
 #include "macros.h"
 
 
@@ -96,6 +97,8 @@ game_engine_init(const char* title, int width, int height, int dimension, bool i
 
     init_score();   // Initialize the score structure
 
+    side_menu_init(engine);
+
 
 
 
@@ -110,6 +113,8 @@ game_engine_init(const char* title, int width, int height, int dimension, bool i
     check_valid_probablities();
 
     init_characters_flags();
+
+    side_menu_init(engine);
 
 
     engine->frame_delay = FRAME_DELAY;
@@ -389,6 +394,8 @@ game_engine_render()
     render_game_objects(engine);
 
     SDL_RenderPresent(engine->renderer);
+
+    side_menu_render();
 
     if(engine->hiding_flag == ROUND_END)
     {

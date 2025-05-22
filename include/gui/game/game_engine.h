@@ -5,6 +5,7 @@
 #include "game_logic/ai_characters/hider.h"
 #include "game_logic/ai_characters/seeker.h"
 #include "game_logic/logic.h"
+#include "gui/sidemenu/sidemenu.h"
 
 #define MIN_WIDTH 1024
 #define MIN_HEIGHT 1024
