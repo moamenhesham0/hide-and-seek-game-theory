@@ -8,7 +8,6 @@ void
 run_side_menu()
 {
     while(true)
-
         side_menu_render();
 }
 int main(int argc, char* argv[])

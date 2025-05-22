@@ -30,6 +30,8 @@ static double* seeker_probabilities;
 static float hider_score = 750;
 static float seeker_score = 680;
 
+static cairo_surface_t *cairo_surface = NULL;
+
 
 static cairo_t *cr = NULL;
 static SDL_Window *window = NULL;
@@ -41,6 +43,21 @@ static SDL_Window *window = NULL;
 #define RED_INK 0.7, 0.1, 0.1
 #define GREEN_INK 0.1, 0.5, 0.1
 #define BLUE_INK 0.1, 0.1, 0.6
+
+// Button structure and callback
+typedef void (*ButtonCallback)(void);
+typedef struct {
+    int x, y, width, height;
+    const char* label;
+    ButtonCallback callback;
+    bool hovered;
+    bool pressed;
+} MedievalButton;
+
+void my_custom_function() ;
+bool is_button_hovered(MedievalButton* button, int mouse_x, int mouse_y);
+static MedievalButton* button = NULL;
+static ButtonCallback custom_function = NULL;
 
 void init_data() {
     // Initialize payoff matrix with sample values
@@ -638,11 +655,14 @@ side_menu_init() {
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
     SDL_Surface *surface = SDL_GetWindowSurface(window);
 
-    cairo_surface_t *cairo_surface = cairo_image_surface_create_for_data(
+    cairo_surface = cairo_image_surface_create_for_data(
         (unsigned char *)surface->pixels, CAIRO_FORMAT_RGB24,
         surface->w, surface->h, surface->pitch);
-     cr = cairo_create(cairo_surface);
-     init_data();
+    cr = cairo_create(cairo_surface);
+    init_data();
+
+    // Initialize button
+    initialize_button();
 }
 
 void side_menu_render() {
@@ -656,6 +676,7 @@ void side_menu_render() {
     int drag_start_scroll_x = 0, drag_start_scroll_y = 0;
 
 
+    while(!quit){
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) {
                 quit = 1;
@@ -684,6 +705,11 @@ void side_menu_render() {
                 mouse_x = e.button.x;
                 mouse_y = e.button.y;
 
+                // Check button click
+                if (button && is_button_hovered(button, mouse_x, mouse_y)) {
+                    button->pressed = true;
+                }
+
                 // Check if clicked on vertical scrollbar
                 if (is_in_rect(mouse_x, mouse_y, WIDTH - 15, 50, 15, HEIGHT - 50 - 15)) {
                     dragging_v_scrollbar = true;
@@ -698,11 +724,28 @@ void side_menu_render() {
                     drag_start_scroll_x = scroll_x;
                 }
             } else if (e.type == SDL_MOUSEBUTTONUP && e.button.button == SDL_BUTTON_LEFT) {
-                dragging_v_scrollbar = false;
-                dragging_h_scrollbar = false;
-            } else if (e.type == SDL_MOUSEMOTION) {
+    // Check if button was clicked and released
+    if (button && button->pressed) {
+        button->pressed = false;
+        if (is_button_hovered(button, e.button.x, e.button.y)) {
+            // Button was clicked - execute callback if it exists
+            if (button->callback) {
+                button->callback();
+            }
+        }
+    }
+
+    // Your existing scrollbar release logic
+    dragging_v_scrollbar = false;
+    dragging_h_scrollbar = false;
+} else if (e.type == SDL_MOUSEMOTION) {
                 mouse_x = e.motion.x;
                 mouse_y = e.motion.y;
+
+                // Update button hover state
+                if (button) {
+                    button->hovered = is_button_hovered(button, mouse_x, mouse_y);
+                }
 
                 if (dragging_v_scrollbar) {
                     int delta_y = mouse_y - drag_start_y;
@@ -783,9 +826,148 @@ void side_menu_render() {
         // Draw scrollbars
         draw_scrollbars(cr, dimension * CELL_W, dimension * CELL_H);
 
+        // Draw the custom action button
+        if (button) {
+            draw_medieval_button(cr, button);
+        }
+
         SDL_UpdateWindowSurface(window);
         SDL_Delay(16);
+    }
+    cairo_destroy(cr);
+    cairo_surface_destroy(cairo_surface);
+    SDL_DestroyWindow(window);
 
 
 
+}
+
+void draw_medieval_button(cairo_t *cr, MedievalButton* btn) {
+    if (!btn) return;
+
+    // Background for button - darker if pressed
+    if (btn->pressed) {
+        cairo_set_source_rgb(cr, DARK_BROWN);
+    } else if (btn->hovered) {
+        cairo_set_source_rgb(cr, MID_BROWN);
+    } else {
+        cairo_set_source_rgb(cr, MID_BROWN);
+    }
+    cairo_rectangle(cr, btn->x, btn->y, btn->width, btn->height);
+    cairo_fill(cr);
+
+    // Border
+    cairo_set_source_rgb(cr, DARK_BROWN);
+    cairo_rectangle(cr, btn->x, btn->y, btn->width, btn->height);
+    cairo_set_line_width(cr, 2);
+    cairo_stroke(cr);
+
+    // Corner decorations
+    int corner_size = 8;
+
+    // Top-left
+    cairo_move_to(cr, btn->x + corner_size, btn->y + 2);
+    cairo_line_to(cr, btn->x + 2, btn->y + 2);
+    cairo_line_to(cr, btn->x + 2, btn->y + corner_size);
+    cairo_set_line_width(cr, 2);
+    cairo_stroke(cr);
+
+    // Top-right
+    cairo_move_to(cr, btn->x + btn->width - corner_size, btn->y + 2);
+    cairo_line_to(cr, btn->x + btn->width - 2, btn->y + 2);
+    cairo_line_to(cr, btn->x + btn->width - 2, btn->y + corner_size);
+    cairo_stroke(cr);
+
+    // Bottom-left
+    cairo_move_to(cr, btn->x + 2, btn->y + btn->height - corner_size);
+    cairo_line_to(cr, btn->x + 2, btn->y + btn->height - 2);
+    cairo_line_to(cr, btn->x + corner_size, btn->y + btn->height - 2);
+    cairo_stroke(cr);
+
+    // Bottom-right
+    cairo_move_to(cr, btn->x + btn->width - 2, btn->y + btn->height - corner_size);
+    cairo_line_to(cr, btn->x + btn->width - 2, btn->y + btn->height - 2);
+    cairo_line_to(cr, btn->x + btn->width - corner_size, btn->y + btn->height - 2);
+    cairo_stroke(cr);
+
+    // Label text - slight offset if pressed for a "click" effect
+    int text_y_offset = btn->pressed ? 2 : 0;
+    int text_x_offset = btn->pressed ? 1 : 0;
+
+    cairo_select_font_face(cr, "Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+    cairo_set_font_size(cr, 16);
+    cairo_set_source_rgb(cr, PARCHMENT_COLOR);
+
+    // Center the text
+    cairo_text_extents_t extents;
+    cairo_text_extents(cr, btn->label, &extents);
+    double x_centered = btn->x + (btn->width - extents.width) / 2 + text_x_offset;
+    double y_centered = btn->y + (btn->height + extents.height) / 2 + text_y_offset;
+
+    cairo_move_to(cr, x_centered, y_centered);
+    cairo_show_text(cr, btn->label);
+}
+
+bool is_button_hovered(MedievalButton* btn, int mouse_x, int mouse_y) {
+    if (!btn) return false;
+    return mouse_x >= btn->x && mouse_x <= btn->x + btn->width &&
+           mouse_y >= btn->y && mouse_y <= btn->y + btn->height;
+}
+
+void button_set_custom_function(ButtonCallback func) {
+    custom_function = func;
+}
+
+void initialize_button() {
+    if (!button) {
+        button = (MedievalButton*)malloc(sizeof(MedievalButton));
+        if (!button) return;
+
+        // Position in bottom right with some margin
+        button->x = WIDTH - 150 - 30;  // 30px margin from right
+        button->y = HEIGHT - 60 - 30;  // 30px margin from bottom
+        button->width = 150;
+        button->height = 60;
+        button->label = "Menu / Reset";
+        button->callback = custom_function;
+        button->hovered = false;
+        button->pressed = false;
+        // Set the callback
+        side_menu_set_button_callback(my_custom_function);
+    }
+}
+
+void side_menu_set_button_callback(void (*callback_function)(void)) {
+    button_set_custom_function(callback_function);
+    if (button) {
+        button->callback = callback_function;
+    }
+}
+
+// Example custom function
+void my_custom_function() {
+    printf("Custom button clicked!\n");
+    // Add your custom logic here
+}
+
+
+
+void side_menu_destroy() {
+    // Free the button
+    if (button) {
+        free(button);
+        button = NULL;
+    }
+
+    // Free Cairo resources
+    if (cr) {
+        cairo_destroy(cr);
+        cr = NULL;
+    }
+
+    // Destroy the window
+    if (window) {
+        SDL_DestroyWindow(window);
+        window = NULL;
+    }
 }
