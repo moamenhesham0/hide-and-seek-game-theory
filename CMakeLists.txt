@@ -62,6 +62,13 @@ else()
     include_directories(${SDL2_MIXER_INCLUDE_DIRS})
 endif()
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(CAIRO REQUIRED cairo)
+
+include_directories(${CAIRO_INCLUDE_DIRS})
+link_directories(${CAIRO_LIBRARY_DIRS})
+
+
 # ==========================================
 # INCLUDES & SOURCE FILES
 # ==========================================
@@ -73,6 +80,12 @@ file(GLOB_RECURSE SOURCES ${SOURCE_DIR}/*.c)
 # ==========================================
 # Main executable
 add_executable(hide_seek ${SOURCES})
+
+# Link Cairo libraries
+target_link_libraries(hide_seek
+    ${CAIRO_LIBRARIES}
+    SDL2 SDL2_image
+)
 
 # Set output directory and disable PIE
 set_target_properties(hide_seek PROPERTIES
