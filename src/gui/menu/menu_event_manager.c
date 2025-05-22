@@ -55,6 +55,16 @@ menu_handler(GameMenu* menu, SDL_Event event){
         }
 
         if(menu->play_menu && menu->input_text[0] != '\0' && IS_MOUSE_INSIDE(x, y, menu->start->rect)){
+            int i = 0;
+            while(menu->input_text[i] != '\0'){
+                if(menu->input_text[0] != '0'){
+                    break;
+                }
+                if(menu->input_text[i] == '0'){
+                    return;
+                }
+                i++;
+            }
             // Handle start button click
             printf("Start button clicked. Input: %s\n", menu->input_text);
             menu->dimension = atoi(menu->input_text);
@@ -80,14 +90,13 @@ menu_handler(GameMenu* menu, SDL_Event event){
             printf("Hider Seeker button clicked.\n");
 
             // Toggle state
-            if (menu->is_hider) {       
-                menu->is_hider = false;         
+            if (menu->is_hider) {
+                menu->is_hider = false;
                 // Clean old texture first
                 if (menu->hider_seeker->texture != NULL) {
                     SDL_DestroyTexture(menu->hider_seeker->texture);
                 }
                 menu->hider_seeker->texture = IMG_LoadTexture(menu->renderer, "assets/menu/seeker.png");
-                printf("Seeker selected.\n");
             } else {
                 menu->is_hider = true;
                 // Clean old texture first
@@ -95,7 +104,6 @@ menu_handler(GameMenu* menu, SDL_Event event){
                     SDL_DestroyTexture(menu->hider_seeker->texture);
                 }
                 menu->hider_seeker->texture = IMG_LoadTexture(menu->renderer, "assets/menu/hider.png");
-                printf("Hider selected.\n");
             }
         }
 

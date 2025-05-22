@@ -105,6 +105,7 @@ menu_init(const char *title, int width, int height)
     menu->two_dimension = (Button*) malloc(sizeof(Button));
     menu->exit = (Button*) malloc(sizeof(Button));
     menu->music = (Button*) malloc(sizeof(Button));
+    menu->music_current_frame = 0;
     menu->start = (Button*) malloc(sizeof(Button));
     menu->hider_seeker = (Button*) malloc(sizeof(Button));
     menu->is_hider = true;
@@ -112,6 +113,9 @@ menu_init(const char *title, int width, int height)
     menu->play_game = false;
     menu->is_2d = false;
     menu->dimension = 0;
+    menu->background = NULL;
+    menu->current_bg_frame = 0;
+    menu->last_bg_frame_time = NULL;
 
     load_texture(menu);
 
@@ -134,16 +138,14 @@ menu_init(const char *title, int width, int height)
     memset(menu->input_text, 0, MAX_INPUT_LENGTH);
     menu->is_input_active = false;
     menu->input_texture = NULL;
-    menu->input_rect = (SDL_Rect){350, 375, 200, 36};
+    menu->input_rect = (SDL_Rect){450, 275, 36, 36};
 
     return menu;
 }
 
 void
 menu_render(){
-    SDL_SetRenderDrawColor(menu->renderer, 128, 128, 128, 255);
     SDL_RenderClear(menu->renderer);
-
     render_menu_objects(menu);
     SDL_RenderPresent(menu->renderer);
 }
@@ -163,10 +165,19 @@ menu_run_status(){
 }
 
 void
-menu_destroy(){
-    if (menu == NULL)
-    {
+menu_destroy() {
+    if (menu == NULL) {
+        printf("Menu is NULL, returning\n");
         return;
+    }
+
+    // Free background texture
+    if (menu->background) {
+        SDL_DestroyTexture(menu->background);
+    }
+
+    if(menu->input_texture) {
+        SDL_DestroyTexture(menu->input_texture);
     }
 
     // Free textures

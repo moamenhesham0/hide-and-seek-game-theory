@@ -2,6 +2,14 @@
 
 void
 load_texture(GameMenu* menu){
+    menu->background = IMG_LoadTexture(menu->renderer, "assets/menu/leaves.png");
+    if (menu->background == NULL) {
+        fprintf(stderr, "Failed to load background texture: %s\n", IMG_GetError());
+        return;
+    }
+    menu->current_bg_frame = 0;
+    menu->last_bg_frame_time = SDL_GetTicks();
+
     menu->title = IMG_LoadTexture(menu->renderer, "assets/menu/title.png");
     if (menu->title == NULL) {
         fprintf(stderr, "Failed to load title texture: %s\n", IMG_GetError());
@@ -39,6 +47,45 @@ load_texture(GameMenu* menu){
         fprintf(stderr, "Failed to load start texture: %s\n", IMG_GetError());
         return;
     }
+
+    SDL_Surface* places_PNG = IMG_Load("assets/menu/places.png");
+    if (!places_PNG) {
+        printf("Failed to load places texture: %s\n", IMG_GetError());
+        return;
+    }
+    menu->places = SDL_CreateTextureFromSurface(menu->renderer, places_PNG);
+    SDL_FreeSurface(places_PNG);
+    if (!menu->places) {
+        fprintf(stderr, "Failed to create places texture: %s\n", SDL_GetError());
+        return;
+    }
+
+    SDL_Surface* mood_PNG = IMG_Load("assets/menu/mood.png");
+    if (!mood_PNG) {
+        printf("Failed to load mood texture: %s\n", IMG_GetError());
+        return;
+    }
+    menu->mood = SDL_CreateTextureFromSurface(menu->renderer, mood_PNG);
+    SDL_FreeSurface(mood_PNG);
+    if (!menu->mood) {
+        fprintf(stderr, "Failed to create mood texture: %s\n", SDL_GetError());
+        return;
+    }
+
+    // Enable transparency for all button textures
+    if(menu->one_dimension->texture)
+        SDL_SetTextureBlendMode(menu->one_dimension->texture, SDL_BLENDMODE_BLEND);
+    if(menu->two_dimension->texture)
+        SDL_SetTextureBlendMode(menu->two_dimension->texture, SDL_BLENDMODE_BLEND);
+    if(menu->exit->texture)
+        SDL_SetTextureBlendMode(menu->exit->texture, SDL_BLENDMODE_BLEND);
+    if(menu->music->texture)
+        SDL_SetTextureBlendMode(menu->music->texture, SDL_BLENDMODE_BLEND);
+    if(menu->hider_seeker->texture)
+        SDL_SetTextureBlendMode(menu->hider_seeker->texture, SDL_BLENDMODE_BLEND);
+    if(menu->start->texture)
+        SDL_SetTextureBlendMode(menu->start->texture, SDL_BLENDMODE_BLEND);
+
     load_button(menu);
 }
 
@@ -61,15 +108,34 @@ load_button(GameMenu* menu){
     menu->music->rect = (SDL_Rect){750, 550, 35, 35};
 
     menu->hider_seeker->is_hovered = false;
-    menu->hider_seeker->rect = (SDL_Rect){375, 525, 80, 80};
+    menu->hider_seeker->rect = (SDL_Rect){435, 325, 80, 80};
 
     // Start button - moved to center
     menu->start->is_hovered = false;
-    menu->start->rect = (SDL_Rect){400, 450, 105, 30};
+    menu->start->rect = (SDL_Rect){350, 500, 105, 30};
 }
 
 void
 render_menu_objects(GameMenu* menu){
+    // Render background animation
+    if(menu->background){
+        Uint32 current_time = SDL_GetTicks();
+        if (current_time - menu->last_bg_frame_time >= MENU_FRAME_DELAY) {
+            menu->current_bg_frame = (menu->current_bg_frame + 1) % MENU_FRAME_COUNT;
+            menu->last_bg_frame_time = current_time;
+        }
+        int current_row = menu->current_bg_frame / MENU_SPRITE_COLS;
+        int current_col = menu->current_bg_frame % MENU_SPRITE_COLS;
+        SDL_Rect srcRect = {
+            current_col * MENU_FRAME_WIDTH,
+            current_row * MENU_FRAME_HEIGHT,
+            MENU_FRAME_WIDTH,
+            MENU_FRAME_HEIGHT
+        };
+        SDL_Rect dstRect = {0, 0, MENU_FRAME_WIDTH, MENU_FRAME_HEIGHT};
+        SDL_RenderCopy(menu->renderer, menu->background, &srcRect, &dstRect);
+    }
+    
     // Render title
     if(menu->title){
         SDL_Rect title_rect = {200, 100, 400, 100};
@@ -77,75 +143,77 @@ render_menu_objects(GameMenu* menu){
     }
 
     // Render one dimension button
-    if(menu->one_dimension && menu->one_dimension->texture){
-        SDL_SetRenderDrawColor(menu->renderer,
-                              menu->one_dimension->is_hovered ? 150 : 128,  // Gray values
-                              menu->one_dimension->is_hovered ? 150 : 128,  // Gray values
-                              menu->one_dimension->is_hovered ? 150 : 128,  // Gray values
-                              255);
-        SDL_RenderFillRect(menu->renderer, &menu->one_dimension->rect);
-        SDL_RenderCopy(menu->renderer, menu->one_dimension->texture, NULL, &menu->one_dimension->rect);
+    if(menu->one_dimension && menu->one_dimension->texture) {
+        // Set blend mode for transparency
+        SDL_SetTextureBlendMode(menu->one_dimension->texture, SDL_BLENDMODE_BLEND);
+        // Set alpha based on hover state
+        SDL_SetTextureAlphaMod(menu->one_dimension->texture, 
+                              menu->one_dimension->is_hovered ? 255 : 180);
+        SDL_RenderCopy(menu->renderer, menu->one_dimension->texture, NULL, 
+                      &menu->one_dimension->rect);
     }
 
     // Render two dimension button
-    if(menu->two_dimension && menu->two_dimension->texture){
-        SDL_SetRenderDrawColor(menu->renderer,
-                              menu->two_dimension->is_hovered ? 150 : 128,  // Gray values
-                              menu->two_dimension->is_hovered ? 150 : 128,  // Gray values
-                              menu->two_dimension->is_hovered ? 150 : 128,  // Gray values
-                              255);
-        SDL_RenderFillRect(menu->renderer, &menu->two_dimension->rect);
-        SDL_RenderCopy(menu->renderer, menu->two_dimension->texture, NULL, &menu->two_dimension->rect);
+    if(menu->two_dimension && menu->two_dimension->texture) {
+        SDL_SetTextureBlendMode(menu->two_dimension->texture, SDL_BLENDMODE_BLEND);
+        SDL_SetTextureAlphaMod(menu->two_dimension->texture, 
+                              menu->two_dimension->is_hovered ? 255 : 180);
+        SDL_RenderCopy(menu->renderer, menu->two_dimension->texture, NULL, 
+                      &menu->two_dimension->rect);
     }
 
     // Render exit button
-    if(menu->exit && menu->exit->texture){
-        SDL_SetRenderDrawColor(menu->renderer,
-                              menu->exit->is_hovered ? 150 : 128,  // Gray values
-                              menu->exit->is_hovered ? 150 : 128,  // Gray values
-                              menu->exit->is_hovered ? 150 : 128,  // Gray values
-                              255);
-        SDL_RenderFillRect(menu->renderer, &menu->exit->rect);
-        SDL_RenderCopy(menu->renderer, menu->exit->texture, NULL, &menu->exit->rect);
+    if(menu->exit && menu->exit->texture) {
+        SDL_SetTextureBlendMode(menu->exit->texture, SDL_BLENDMODE_BLEND);
+        SDL_SetTextureAlphaMod(menu->exit->texture, 
+                              menu->exit->is_hovered ? 255 : 180);
+        SDL_RenderCopy(menu->renderer, menu->exit->texture, NULL, 
+                      &menu->exit->rect);
     }
 
     // Render music button
-    if(menu->music && menu->music->texture){
-        SDL_SetRenderDrawColor(menu->renderer,
-                      menu->music->is_hovered ? 150 : 128,  // Gray values
-                      menu->music->is_hovered ? 150 : 128,  // Gray values
-                      menu->music->is_hovered ? 150 : 128,  // Gray values
-                      255);
-        SDL_RenderFillRect(menu->renderer, &menu->music->rect);
-        
+    if(menu->music && menu->music->texture) {
+        SDL_SetTextureBlendMode(menu->music->texture, SDL_BLENDMODE_BLEND);
+        SDL_SetTextureAlphaMod(menu->music->texture, 
+                              menu->music->is_hovered ? 255 : 180);
         SDL_Rect srcRect = {
             menu->music_current_frame * MUSIC_FRAME_WIDTH,
             0,
             MUSIC_FRAME_WIDTH,
             MUSIC_FRAME_HEIGHT
         };
-        SDL_RenderCopy(menu->renderer, menu->music->texture, &srcRect, &menu->music->rect);
+        SDL_RenderCopy(menu->renderer, menu->music->texture, &srcRect, 
+                      &menu->music->rect);
     }
 
     // Render hider seeker button
-    if(menu->hider_seeker && menu->hider_seeker->texture){
-        SDL_SetRenderDrawColor(menu->renderer,
-                              menu->hider_seeker->is_hovered ? 150 : 128,  // Gray values
-                              menu->hider_seeker->is_hovered ? 150 : 128,  // Gray values
-                              menu->hider_seeker->is_hovered ? 150 : 128,  // Gray values
-                              255);
-        SDL_RenderFillRect(menu->renderer, &menu->hider_seeker->rect);
-        SDL_RenderCopy(menu->renderer, menu->hider_seeker->texture, NULL, &menu->hider_seeker->rect);
+    if(menu->play_menu && menu->hider_seeker && menu->hider_seeker->texture) {
+        SDL_SetTextureBlendMode(menu->hider_seeker->texture, SDL_BLENDMODE_BLEND);
+        SDL_SetTextureAlphaMod(menu->hider_seeker->texture, 
+                              menu->hider_seeker->is_hovered ? 255 : 180);
+        SDL_RenderCopy(menu->renderer, menu->hider_seeker->texture, NULL, 
+                      &menu->hider_seeker->rect);
     }
 
-    if(menu->play_menu && menu->start && menu->start->texture){
-        SDL_SetRenderDrawColor(menu->renderer,
-                              menu->start->is_hovered ? 150 : 128,
-                              menu->start->is_hovered ? 150 : 128,
-                              menu->start->is_hovered ? 150 : 128,
-                              255);
-        SDL_RenderFillRect(menu->renderer, &menu->start->rect);
-        SDL_RenderCopy(menu->renderer, menu->start->texture, NULL, &menu->start->rect);
+    // Render start button
+    if(menu->play_menu && menu->start && menu->start->texture) {
+        SDL_SetTextureBlendMode(menu->start->texture, SDL_BLENDMODE_BLEND);
+        SDL_SetTextureAlphaMod(menu->start->texture, 
+                              menu->start->is_hovered ? 255 : 180);
+        SDL_RenderCopy(menu->renderer, menu->start->texture, NULL, 
+                      &menu->start->rect);
+    }
+
+    // Render places texture
+    if (menu->places && menu->play_menu) {
+        SDL_Rect places_rect = {260, 280, 173, 23};
+        SDL_RenderCopy(menu->renderer, menu->places, NULL, &places_rect);
+    }
+
+    // Render mood texture
+    if (menu->mood && menu->play_menu) {
+        SDL_Rect mood_rect = {260, 350, 173, 23};
+        SDL_RenderCopy(menu->renderer, menu->mood, NULL, &mood_rect);
     }
 
     // Render input field when play menu is active
@@ -168,21 +236,7 @@ render_menu_objects(GameMenu* menu){
             SDL_Surface* text_surface = TTF_RenderText_Solid(menu->font, menu->input_text, text_color);
             if (text_surface) {
                 SDL_Texture* text_texture = SDL_CreateTextureFromSurface(menu->renderer, text_surface);
-                SDL_Rect text_rect = {menu->input_rect.x + 5, menu->input_rect.y + 5,
-                                    text_surface->w, text_surface->h};
-                SDL_RenderCopy(menu->renderer, text_texture, NULL, &text_rect);
-                SDL_DestroyTexture(text_texture);
-                SDL_FreeSurface(text_surface);
-            }
-        }
-
-        // Render placeholder text when input is empty
-        if (strlen(menu->input_text) == 0) {
-            SDL_Color text_color = {128, 128, 128, 255}; // Gray color for placeholder
-            SDL_Surface* text_surface = TTF_RenderText_Solid(menu->font, "Click to enter size", text_color);
-            if (text_surface) {
-                SDL_Texture* text_texture = SDL_CreateTextureFromSurface(menu->renderer, text_surface);
-                SDL_Rect text_rect = {menu->input_rect.x + 5, menu->input_rect.y + 5,
+                SDL_Rect text_rect = {menu->input_rect.x, menu->input_rect.y + 5,
                                     text_surface->w, text_surface->h};
                 SDL_RenderCopy(menu->renderer, text_texture, NULL, &text_rect);
                 SDL_DestroyTexture(text_texture);

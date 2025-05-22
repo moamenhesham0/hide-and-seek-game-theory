@@ -10,10 +10,14 @@
 
 #define FIRST_GPU -1
 
-#define MAX_INPUT_LENGTH 5
+#define MAX_INPUT_LENGTH 4
 
-#define MENU_MIN_WIDTH 800
-#define MENU_MIN_HEIGHT 600
+#define MENU_FRAME_WIDTH 800
+#define MENU_FRAME_HEIGHT 600
+#define MENU_SPRITE_COLS 9
+#define MENU_SPRITE_ROWS 11
+#define MENU_FRAME_COUNT 99
+#define MENU_FRAME_DELAY 42
 
 #define GAME_MENU_ALREADY_RUNNING_MSG "Game menu is already initialized.\n"
 #define FAILED_RENDERER_MSG "Failed to create renderer: %s\n"
@@ -55,11 +59,17 @@ typedef struct GameMenu {
     SDL_Texture *input_texture;
     SDL_Rect input_rect;
 
+    SDL_Texture *places;
+    SDL_Texture *mood;
+
 
     // Game info
     int dimension;
     bool is_2d;
 
+    SDL_Texture* background;
+    int current_bg_frame;
+    Uint32 last_bg_frame_time;
 
 } GameMenu;
 

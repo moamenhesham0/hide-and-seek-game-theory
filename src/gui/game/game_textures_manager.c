@@ -23,22 +23,17 @@ PNG_load(GameEngine* engine)
         return;
     }
 
-
-    if(engine->is_hider)
-    {
-        SDL_Surface* hider_PNG = IMG_Load(ASSETS_DIR HIDER_SPRITE_SHEET);
-        if (!hider_PNG) {
-            printf(LOAD_HIDER_FAILED_MSG, IMG_GetError());
-            return;
-        }
-        engine->hider_texture = SDL_CreateTextureFromSurface(engine->renderer, hider_PNG);
-        SDL_FreeSurface(hider_PNG);
-        if (!engine->hider_texture) {
-            fprintf(stderr, CREATE_HIDER_TEXTURE_FAILED_MSG, SDL_GetError());
-            return;
-        }
+    SDL_Surface* hider_PNG = IMG_Load(ASSETS_DIR HIDER_SPRITE_SHEET);
+    if (!hider_PNG) {
+        printf(LOAD_HIDER_FAILED_MSG, IMG_GetError());
+        return;
     }
-
+    engine->hider_texture = SDL_CreateTextureFromSurface(engine->renderer, hider_PNG);
+    SDL_FreeSurface(hider_PNG);
+    if (!engine->hider_texture) {
+        fprintf(stderr, CREATE_HIDER_TEXTURE_FAILED_MSG, SDL_GetError());
+        return;
+    }
 
     SDL_Surface* seeker_PNG = IMG_Load("assets/game/seeker_sprite_sheet.png");
     if (!seeker_PNG) {
@@ -188,10 +183,8 @@ render_game_objects(GameEngine* engine)
             CHARACTER_FRAME_HEIGHT
         };
 
-
         SDL_RenderCopy(engine->renderer, engine->hider_texture, &srcRect  , &engine->hider_src_rect);
     }
-
 
     // Render seeker character
     if (engine->seeker_texture && engine->hiding_flag >= HIDING && engine->hiding_flag < SEEKER_OPEN_BOX) {

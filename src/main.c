@@ -5,7 +5,7 @@
 
 int main(int argc, char* argv[])
 {
-    GameMenu *menu = menu_init("Start Menu", MENU_MIN_WIDTH, MENU_MIN_HEIGHT);
+    GameMenu *menu = menu_init("Start Menu", MENU_FRAME_WIDTH, MENU_FRAME_HEIGHT);
 
     while(menu_run_status()){
         menu_handle_events();
