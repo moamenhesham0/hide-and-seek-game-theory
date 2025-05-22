@@ -1,18 +1,30 @@
 #include "gui/game/game_engine.h"
 #include "gui/menu/main_menu.h"
 #include "gui/sidemenu/sidemenu.h"
+#include "main.h"
 
 
 SDL_Thread* thread = NULL;
+static play_game = false;
+static bool play_menu = true;
+
+void
+reset_clicked(){
+    play_menu = true;
+    play_game = false;
+}
 
 
 int main(int argc, char* argv[])
 {
 
-    bool play_game = false;
-    bool play_menu = true;
+    int dimension = 0;
+    bool is_2d = false;
+    bool is_hider = false;
+    
     while(play_game || play_menu)
     {
+        if(play_menu){
         GameMenu *menu = menu_init("Start Menu", MENU_FRAME_WIDTH, MENU_FRAME_HEIGHT);
         while(menu_run_status()){
         menu_handle_events();
@@ -21,12 +33,12 @@ int main(int argc, char* argv[])
     }
         play_game = menu->play_game;
         play_menu = false;
-        int dimension = menu->dimension;
-        bool is_2d = menu->is_2d;
-        bool is_hider = menu->is_hider;
+        dimension = menu->dimension;
+        is_2d = menu->is_2d;
+        is_hider = menu->is_hider;
 
         menu_destroy();
-
+        }
 
         if(play_game)
         {
@@ -38,6 +50,7 @@ int main(int argc, char* argv[])
         {
             game_engine_handle_events();
             game_engine_render();
+            SDL_Delay(60);
             side_menu_render();
             SDL_Delay(FRAME_RATE);
         }

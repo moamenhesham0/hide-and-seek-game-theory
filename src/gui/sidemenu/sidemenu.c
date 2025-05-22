@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include "gui/game/game_engine.h"
 #include "game_logic/score.h"
+#include "main.h"
 
 #define WIDTH 900
 #define HEIGHT 900
@@ -930,26 +931,30 @@ void initialize_button() {
         button->width = 150;
         button->height = 60;
         button->label = "Menu / Reset";
-        button->callback = custom_function;
+        // Set the callback directly here
+        button->callback = my_custom_function;
         button->hovered = false;
         button->pressed = false;
-        // Set the callback
-        side_menu_set_button_callback(my_custom_function);
     }
 }
 
 void side_menu_set_button_callback(void (*callback_function)(void)) {
-    button_set_custom_function(callback_function);
-    if (button) {
+    if (button && callback_function) {
         button->callback = callback_function;
+    } else {
+        // Fall back to the default function if no valid callback is provided
+        if (button) {
+            button->callback = my_custom_function;
+        }
     }
 }
 
 // Example custom function
 void my_custom_function()
 {
+    // Don't call reset_clicked() directly - use the game engine API
     game_engine_set_play_menu(true);
-    game_engine_set_run_status(RUN_STATUS_QUIT);
+    game_engine_set_run_status(false);
 }
 
 
