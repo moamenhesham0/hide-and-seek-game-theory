@@ -137,6 +137,8 @@ typedef struct GameEngine
     int hard_chest_current_frame;
     int hard_chest_frame_count;
 
+    bool play_menu;
+
 
     // Last time we updated animation
     Uint32 last_update_time;
@@ -196,6 +198,12 @@ SDL_Rect game_engine_get_seeker_dst_rect();
 void game_engine_set_seeker_choice(int choice);
 int game_engine_get_seeker_choice();
 void game_engine_set_seeker_current_direction(int dir);
+
+
+bool game_engine_get_play_menu();
+void game_engine_set_play_menu(bool play_menu);
+
+bool game_engine_get_run_status();
 
 SDL_Window* game_engine_get_window();
 

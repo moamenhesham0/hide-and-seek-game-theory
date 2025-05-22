@@ -154,6 +154,7 @@ menu_render(){
 void
 menu_handle_events()
 {
+
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         menu_handler(menu, event);

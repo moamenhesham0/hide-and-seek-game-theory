@@ -35,6 +35,11 @@ static cairo_surface_t *cairo_surface = NULL;
 
 static cairo_t *cr = NULL;
 static SDL_Window *window = NULL;
+
+bool side_menu_has_focus() {
+    Uint32 window_flags = SDL_GetWindowFlags(window);
+    return (window_flags & SDL_WINDOW_INPUT_FOCUS) != 0;
+}
 // Medieval style colors
 #define PARCHMENT_COLOR 0.94, 0.9, 0.7
 #define DARK_BROWN 0.4, 0.2, 0.1
@@ -667,7 +672,6 @@ side_menu_init() {
 
 void side_menu_render() {
 
-    update_data();
 
     int quit = 0;
     SDL_Event e;
@@ -676,7 +680,6 @@ void side_menu_render() {
     int drag_start_scroll_x = 0, drag_start_scroll_y = 0;
 
 
-    while(!quit){
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) {
                 quit = 1;
@@ -779,6 +782,7 @@ void side_menu_render() {
             }
         }
 
+
         // Clear background with parchment texture
         cairo_set_source_rgb(cr, PARCHMENT_COLOR);
         cairo_paint(cr);
@@ -834,13 +838,10 @@ void side_menu_render() {
         SDL_UpdateWindowSurface(window);
         SDL_Delay(16);
     }
-    cairo_destroy(cr);
-    cairo_surface_destroy(cairo_surface);
-    SDL_DestroyWindow(window);
 
 
 
-}
+
 
 void draw_medieval_button(cairo_t *cr, MedievalButton* btn) {
     if (!btn) return;
@@ -945,9 +946,10 @@ void side_menu_set_button_callback(void (*callback_function)(void)) {
 }
 
 // Example custom function
-void my_custom_function() {
-    printf("Custom button clicked!\n");
-    // Add your custom logic here
+void my_custom_function()
+{
+    game_engine_set_play_menu(true);
+    game_engine_set_run_status(RUN_STATUS_QUIT);
 }
 
 
@@ -959,10 +961,15 @@ void side_menu_destroy() {
         button = NULL;
     }
 
-    // Free Cairo resources
+    // Free Cairo resources (only if they exist)
     if (cr) {
         cairo_destroy(cr);
         cr = NULL;
+    }
+
+    if (cairo_surface) {
+        cairo_surface_destroy(cairo_surface);
+        cairo_surface = NULL;
     }
 
     // Destroy the window

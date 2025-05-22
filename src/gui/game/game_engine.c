@@ -101,7 +101,6 @@ game_engine_init(const char* title, int width, int height, int dimension, bool i
 
 
 
-
     engine->seeker =  initialize_seeker(dimension , engine->game_matrix);
     engine->hider = initialize_hider(dimension , engine->game_matrix);
 
@@ -373,6 +372,21 @@ void game_engine_set_seeker_current_direction(int dir)
     return engine->seeker_current_direction = dir;
 }
 
+bool game_engine_get_play_menu()
+{
+    return engine->play_menu;
+}
+
+void game_engine_set_play_menu(bool play_menu)
+{
+    engine->play_menu = play_menu;
+}
+
+bool game_engine_get_run_status()
+{
+    return engine->run_status;
+}
+
 
 
 
@@ -395,12 +409,15 @@ game_engine_render()
     SDL_RenderPresent(engine->renderer);
 
 
+
+
     if(engine->hiding_flag == ROUND_END)
     {
         SDL_Delay(HIDE_DELAY + BOX_CLOSE_DELAY);
         handle_score(HIDE_DELAY);
         game_engine_get_chests()[engine->seeker_choice].state = CLOSED;
         game_engine_get_chests()[engine->hider_choice].state = CLOSED;
+        update_data();
         init_characters_flags();
     }
 }
@@ -427,12 +444,13 @@ game_engine_destroy()
     }
 
     destroy_texture(engine);
+    FREE_MATRIX(engine->game_matrix, engine->dimension);
+    free(engine->chests);
 
     SDL_DestroyRenderer(engine->renderer);
     SDL_DestroyWindow(engine->window);
 
-    FREE_MATRIX(engine->game_matrix, engine->dimension);
-    free(engine->chests);
+
 
     free(engine);
     engine = NULL;
