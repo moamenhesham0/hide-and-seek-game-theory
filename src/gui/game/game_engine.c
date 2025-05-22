@@ -394,7 +394,6 @@ game_engine_render()
 
     SDL_RenderPresent(engine->renderer);
 
-    side_menu_render();
 
     if(engine->hiding_flag == ROUND_END)
     {

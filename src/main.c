@@ -2,7 +2,15 @@
 #include "gui/menu/main_menu.h"
 
 
+SDL_Thread* thread = NULL;
 
+void
+run_side_menu()
+{
+    while(true)
+
+        side_menu_render();
+}
 int main(int argc, char* argv[])
 {
     GameMenu *menu = menu_init("Start Menu", MENU_FRAME_WIDTH, MENU_FRAME_HEIGHT);
@@ -20,7 +28,8 @@ int main(int argc, char* argv[])
     menu_destroy();
     if(play_game){
     game_engine_init("Game Engine", MIN_WIDTH, MIN_HEIGHT, dimension, is_2d , is_hider);
-    
+    thread = SDL_CreateThread(run_side_menu, "Game Engine Thread", NULL);
+
     while (game_engine_run_status())
     {
         game_engine_handle_events();
