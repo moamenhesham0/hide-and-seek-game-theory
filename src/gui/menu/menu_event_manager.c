@@ -1,5 +1,6 @@
 #include "gui/menu/menu_event_manager.h"
 #include "gui/game/events_manager.h"
+#include "simulation/simulation.h"
 #include "game_logic/logic.h"
 #include <stdlib.h>
 

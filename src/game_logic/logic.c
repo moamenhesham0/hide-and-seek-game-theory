@@ -4,7 +4,7 @@
 #include "game_logic/ai_characters/hider.h"
 #include "game_logic/ai_characters/seeker.h"
 #include "game_logic/logic.h"
-
+#include "simulation/simulation.h"
 
 // Rewards for seeker guesses and hider hides when guess is correct, by place type
 const int seeker_rewards[] = {1, 2, 3};  // EASY=1, NEUTRAL=2, HARD=3
@@ -46,7 +46,9 @@ int choose_chest(int num_chests, double *probabilities) {
  * This function initializes the game, runs the simulations, and prints results.
  */
 void simulate_games() {
+                simulation_init();
     srand(time(NULL));
+    simulation_reset_output(); // Reset the output buffer
 
     int num_chests = 4;
 
@@ -71,14 +73,14 @@ void simulate_games() {
     find_hider_strategy(best_hider, num_chests);
     find_seeker_strategy(best_seeker, num_chests);
 
-    printf("Computed Hider Strategy:\n");
+    simulation_append_text("Computed Hider Strategy:\n");
     for (int i = 0; i < num_chests; i++) {
-        printf("Chest %d: %.4f\n", i + 1, best_hider->probabilities[i]);
+        simulation_append_text("Chest %d: %.4f\n", i + 1, best_hider->probabilities[i]);
     }
 
-    printf("Computed Seeker Strategy:\n");
+    simulation_append_text("Computed Seeker Strategy:\n");
     for (int i = 0; i < num_chests; i++) {
-        printf("Chest %d: %.4f\n", i + 1, best_seeker->probabilities[i]);
+        simulation_append_text("Chest %d: %.4f\n", i + 1, best_seeker->probabilities[i]);
     }
 
     int seeker_score = 0;
@@ -99,25 +101,26 @@ void simulate_games() {
         seeker_score += reward;
         hider_score += -reward;
 
-        printf("Round %3d: Hide Chest %d | Guess Chest %d | Reward (Seeker): %d\n",
+        simulation_append_text("Round %3d: Hide Chest %d | Guess Chest %d | Reward (Seeker): %d\n",
                round + 1, chosen_hide + 1, chosen_guess + 1, reward);
     }
 
-    printf("\n=== Final Score after 100 rounds ===\n");
-    printf("Seeker: %d\n", seeker_score);
-    printf("Hider : %d\n", hider_score);
+    simulation_append_text("\n=== Final Score after 100 rounds ===\n");
+    simulation_append_text("Seeker: %d\n", seeker_score);
+    simulation_append_text("Hider : %d\n", hider_score);
 
-    printf("\nChest Pick Counts:\n");
-    printf("Seeker picks:\n");
+    simulation_append_text("\nChest Pick Counts:\n");
+    simulation_append_text("Seeker picks:\n");
     for (int i = 0; i < num_chests; i++) {
-        printf("Chest %d: %d times\n", i + 1, seeker_picks[i]);
+        simulation_append_text("Chest %d: %d times\n", i + 1, seeker_picks[i]);
     }
 
-    printf("Hider picks:\n");
+    simulation_append_text("Hider picks:\n");
     for (int i = 0; i < num_chests; i++) {
-        printf("Chest %d: %d times\n", i + 1, hider_picks[i]);
+        simulation_append_text("Chest %d: %d times\n", i + 1, hider_picks[i]);
     }
 
     for (int i = 0; i < num_chests; i++) free(payoff_matrix[i]);
     free(payoff_matrix);
+    simulation_render(); // Render the simulation output
 }
